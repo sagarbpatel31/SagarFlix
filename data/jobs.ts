@@ -1,0 +1,247 @@
+export type JobStatus = "Saved" | "Applied" | "Interviewing" | "Rejected" | "Follow-up";
+export type JobPriority = "High" | "Medium" | "Low";
+
+export type JobCompany = {
+  id: string;
+  slug: string;
+  company: string;
+  careerUrl: string;
+  roleKeywords: string[];
+  status: JobStatus;
+  priority: JobPriority;
+  notes: string;
+  tags: string[];
+  location: string;
+};
+
+export type JobMeta = Pick<
+  JobCompany,
+  "careerUrl" | "roleKeywords" | "status" | "priority" | "notes" | "tags" | "location"
+>;
+
+export const jobFilters = [
+  "Embedded",
+  "Robotics",
+  "AI/ML",
+  "Remote",
+  "California",
+  "Applied",
+  "Saved",
+  "Interviewing",
+] as const;
+
+export const jobMetaByCompany: Record<string, JobMeta> = {
+  NVIDIA: {
+    careerUrl: "https://www.nvidia.com/en-us/about-nvidia/careers/",
+    roleKeywords: ["Embedded Systems", "Robotics", "AI Infrastructure"],
+    status: "Saved",
+    priority: "High",
+    notes: "Strong fit for accelerated systems, robotics, and edge AI roles.",
+    tags: ["Embedded", "Robotics", "AI/ML", "California"],
+    location: "Santa Clara, CA",
+  },
+  "Figure AI": {
+    careerUrl: "https://www.figure.ai/careers",
+    roleKeywords: ["Humanoid Robotics", "Robotics Engineer", "Controls"],
+    status: "Applied",
+    priority: "High",
+    notes: "Ideal overlap with humanoids, autonomy, and systems integration.",
+    tags: ["Robotics", "AI/ML", "California", "Applied"],
+    location: "Sunnyvale, CA",
+  },
+  Anduril: {
+    careerUrl: "https://www.anduril.com/careers/",
+    roleKeywords: ["Embedded", "Robotics", "Mission Systems"],
+    status: "Interviewing",
+    priority: "High",
+    notes: "Good technical depth target for defense robotics and autonomy.",
+    tags: ["Embedded", "Robotics", "Applied", "California"],
+    location: "Costa Mesa, CA",
+  },
+  Zipline: {
+    careerUrl: "https://flyzipline.com/careers/",
+    roleKeywords: ["Autonomy", "Fleet Software", "Systems"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Interesting fit for robotics at scale and mission-critical operations.",
+    tags: ["Robotics", "Remote"],
+    location: "Remote / California",
+  },
+  Apple: {
+    careerUrl: "https://jobs.apple.com/en-us/search",
+    roleKeywords: ["Embedded", "Firmware", "Systems"],
+    status: "Follow-up",
+    priority: "Medium",
+    notes: "Useful if hardware-adjacent and OS-level work is the focus.",
+    tags: ["Embedded", "California", "Applied"],
+    location: "Cupertino, CA",
+  },
+  OpenAI: {
+    careerUrl: "https://openai.com/careers/",
+    roleKeywords: ["AI Tools", "Systems", "Product Engineering"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Potential fit for technical product work or platform tooling.",
+    tags: ["AI/ML", "Remote"],
+    location: "Remote",
+  },
+  "Boston Dynamics": {
+    careerUrl: "https://bostondynamics.com/careers/",
+    roleKeywords: ["Robotics", "Perception", "Mechanisms"],
+    status: "Rejected",
+    priority: "Low",
+    notes: "Keep in the archive; still a useful robotics reference target.",
+    tags: ["Robotics", "California"],
+    location: "Waltham, MA",
+  },
+  "Applied Intuition": {
+    careerUrl: "https://www.appliedintuition.com/careers",
+    roleKeywords: ["Simulation", "Autonomy", "Software Engineer"],
+    status: "Applied",
+    priority: "High",
+    notes: "Excellent overlap with simulation tooling and robotics validation.",
+    tags: ["Robotics", "AI/ML", "California", "Applied"],
+    location: "Mountain View, CA",
+  },
+  Tesla: {
+    careerUrl: "https://www.tesla.com/careers/search",
+    roleKeywords: ["Embedded", "Robotics", "Manufacturing Systems"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Strong systems brand; filter carefully for actual fit.",
+    tags: ["Embedded", "Robotics", "California"],
+    location: "Palo Alto, CA",
+  },
+  "Remote AI Lab": {
+    careerUrl: "https://example.com/careers",
+    roleKeywords: ["Remote", "AI/ML", "Full Stack"],
+    status: "Saved",
+    priority: "Low",
+    notes: "Placeholder for future saved roles imported from the Google Sheet.",
+    tags: ["Remote", "AI/ML"],
+    location: "Remote",
+  },
+};
+
+export const jobs: JobCompany[] = [
+  {
+    id: "1",
+    slug: "nvidia",
+    company: "NVIDIA",
+    careerUrl: "https://www.nvidia.com/en-us/about-nvidia/careers/",
+    roleKeywords: ["Embedded Systems", "Robotics", "AI Infrastructure"],
+    status: "Saved",
+    priority: "High",
+    notes: "Strong fit for accelerated systems, robotics, and edge AI roles.",
+    tags: ["Embedded", "Robotics", "AI/ML", "California"],
+    location: "Santa Clara, CA",
+  },
+  {
+    id: "2",
+    slug: "figure-ai",
+    company: "Figure AI",
+    careerUrl: "https://www.figure.ai/careers",
+    roleKeywords: ["Humanoid Robotics", "Robotics Engineer", "Controls"],
+    status: "Applied",
+    priority: "High",
+    notes: "Ideal overlap with humanoids, autonomy, and systems integration.",
+    tags: ["Robotics", "AI/ML", "California", "Applied"],
+    location: "Sunnyvale, CA",
+  },
+  {
+    id: "3",
+    slug: "anduril",
+    company: "Anduril",
+    careerUrl: "https://www.anduril.com/careers/",
+    roleKeywords: ["Embedded", "Robotics", "Mission Systems"],
+    status: "Interviewing",
+    priority: "High",
+    notes: "Good technical depth target for defense robotics and autonomy.",
+    tags: ["Embedded", "Robotics", "Applied", "California"],
+    location: "Costa Mesa, CA",
+  },
+  {
+    id: "4",
+    slug: "zipline",
+    company: "Zipline",
+    careerUrl: "https://flyzipline.com/careers/",
+    roleKeywords: ["Autonomy", "Fleet Software", "Systems"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Interesting fit for robotics at scale and mission-critical operations.",
+    tags: ["Robotics", "Remote"],
+    location: "Remote / California",
+  },
+  {
+    id: "5",
+    slug: "apple",
+    company: "Apple",
+    careerUrl: "https://jobs.apple.com/en-us/search",
+    roleKeywords: ["Embedded", "Firmware", "Systems"],
+    status: "Follow-up",
+    priority: "Medium",
+    notes: "Useful if hardware-adjacent and OS-level work is the focus.",
+    tags: ["Embedded", "California", "Applied"],
+    location: "Cupertino, CA",
+  },
+  {
+    id: "6",
+    slug: "openai",
+    company: "OpenAI",
+    careerUrl: "https://openai.com/careers/",
+    roleKeywords: ["AI Tools", "Systems", "Product Engineering"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Potential fit for technical product work or platform tooling.",
+    tags: ["AI/ML", "Remote"],
+    location: "Remote",
+  },
+  {
+    id: "7",
+    slug: "boston-dynamics",
+    company: "Boston Dynamics",
+    careerUrl: "https://bostondynamics.com/careers/",
+    roleKeywords: ["Robotics", "Perception", "Mechanisms"],
+    status: "Rejected",
+    priority: "Low",
+    notes: "Keep in the archive; still a useful robotics reference target.",
+    tags: ["Robotics", "California"],
+    location: "Waltham, MA",
+  },
+  {
+    id: "8",
+    slug: "applied-intuition",
+    company: "Applied Intuition",
+    careerUrl: "https://www.appliedintuition.com/careers",
+    roleKeywords: ["Simulation", "Autonomy", "Software Engineer"],
+    status: "Applied",
+    priority: "High",
+    notes: "Excellent overlap with simulation tooling and robotics validation.",
+    tags: ["Robotics", "AI/ML", "California", "Applied"],
+    location: "Mountain View, CA",
+  },
+  {
+    id: "9",
+    slug: "tesla",
+    company: "Tesla",
+    careerUrl: "https://www.tesla.com/careers/search",
+    roleKeywords: ["Embedded", "Robotics", "Manufacturing Systems"],
+    status: "Saved",
+    priority: "Medium",
+    notes: "Strong systems brand; filter carefully for actual fit.",
+    tags: ["Embedded", "Robotics", "California"],
+    location: "Palo Alto, CA",
+  },
+  {
+    id: "10",
+    slug: "remote-ai-lab",
+    company: "Remote AI Lab",
+    careerUrl: "https://example.com/careers",
+    roleKeywords: ["Remote", "AI/ML", "Full Stack"],
+    status: "Saved",
+    priority: "Low",
+    notes: "Placeholder for future saved roles imported from the Google Sheet.",
+    tags: ["Remote", "AI/ML"],
+    location: "Remote",
+  },
+];

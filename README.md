@@ -174,13 +174,41 @@ npx prisma studio
 
 ## Deployment
 
-### Vercel (Recommended)
+### Vercel
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Set `AUTH_TRUST_HOST=true` and `NEXT_PUBLIC_SITE_URL` to your production domain
-5. Run `npx prisma migrate deploy` as a build step or via Vercel CLI
+This repo is ready for a standard Vercel import flow:
+
+1. Push `main` to GitHub.
+2. In Vercel, import [sagarbpatel31/SagarFlix](https://github.com/sagarbpatel31/SagarFlix).
+3. Set the production environment variables listed below.
+4. Deploy the project.
+5. Run Prisma migrations against the production database with:
+
+```bash
+npm run db:migrate:deploy
+```
+
+If you prefer the Vercel CLI, you can also run the migration command from your local machine after the project is connected.
+
+### Production Environment Variables
+
+Set these in Vercel for the production environment:
+
+- `DATABASE_URL`
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `AUTH_TRUST_HOST=true`
+- `NEXT_PUBLIC_SITE_URL`
+- `GITHUB_ID` / `GITHUB_SECRET` if GitHub login is enabled
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` if Google login is enabled
+- `OPENAI_API_KEY` only if you want the OpenAI blog provider
+- `NEXT_PUBLIC_BLOG_PROVIDER=mock` to keep the default local generator
+
+Recommended values:
+
+- `NEXTAUTH_URL` should be the final Vercel domain, or your custom domain after you add one.
+- `NEXT_PUBLIC_SITE_URL` should match the same public URL so metadata and sitemap generation stay correct.
+- `AUTH_TRUST_HOST=true` should stay enabled on Vercel.
 
 ### Database Options
 
@@ -188,9 +216,15 @@ npx prisma studio
 - **Neon** (Serverless PostgreSQL) - Free tier available
 - **Railway** / **Render** / **PlanetScale**
 
+### OAuth Redirect URLs
+
+When you enable GitHub or Google sign-in, configure the callback URLs to match your deployed domain:
+
+- `https://<your-vercel-domain>/api/auth/callback/github`
+- `https://<your-vercel-domain>/api/auth/callback/google`
+
 ## Next Steps
 
-- Set up CI/CD pipeline
 - Add analytics/error tracking (Sentry, Vercel Analytics)
 - Implement resume page with PDF generation
 - Add project detail pages with case studies

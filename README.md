@@ -190,6 +190,11 @@ npm run db:migrate:deploy
 
 If you prefer the Vercel CLI, you can also run the migration command from your local machine after the project is connected.
 
+Recommended runtime:
+
+- Node.js `20.x`
+- This repo pins that version in [.nvmrc](/Users/sagarpatel/Desktop/Career_resume_Site/.nvmrc) and `package.json`
+
 ### Production Environment Variables
 
 Set these in Vercel for the production environment:

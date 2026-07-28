@@ -1,99 +1,109 @@
 import Link from "next/link";
-import { ArrowRight, MonitorPlay, ShieldCheck, Workflow, Sparkles } from "lucide-react";
+import { ExternalLink, Play, ShieldCheck, Sparkles, Workflow } from "lucide-react";
+import { Billboard } from "@/components/Billboard";
+import { TitleCard } from "@/components/TitleCard";
+import { projects } from "@/data/projects";
 
 const features = [
-  "Portfolio framing for technical depth",
-  "Cinematic visual system that supports storytelling",
-  "Useful companion to SagarFlix and Sagar OS",
+  {
+    title: "Portfolio framing for technical depth",
+    body: "Positions the work so the engineering substance lands before the visual polish does.",
+    icon: Sparkles,
+  },
+  {
+    title: "Trusted surface for technical storytelling",
+    body: "A public face that stays credible to engineers while remaining legible to recruiters.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "The public layer of the career OS",
+    body: "Connects outward to the live site while SagarFlix holds the deeper portfolio system.",
+    icon: Workflow,
+  },
 ];
 
-const stats = [
-  { label: "Live site", value: "frontendsf.vercel.app" },
-  { label: "Role", value: "Public brand layer" },
-  { label: "Focus", value: "Storytelling + clarity" },
-];
+const related = projects
+  .filter((project) => project.tags.some((tag) => ["Systems", "Developer Tools"].includes(tag)))
+  .slice(0, 4);
 
 export default function SignalForgePage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/45 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(229,9,20,0.22),_transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent_40%,rgba(0,0,0,0.24))]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-netflix-red/80 to-transparent" />
+    <div className="pb-20">
+      <Billboard
+        eyebrow="SignalForge"
+        title="The technical brand surface."
+        meta={[
+          <span key="site">frontendsf.vercel.app</span>,
+          <span key="role">Public brand layer</span>,
+          <span key="live" className="text-emerald-400">
+            Live
+          </span>,
+        ]}
+        description="SignalForge is the outward-facing brand layer of the ecosystem — storytelling and clarity, pointed at the live site, without adding backend complexity to SagarFlix itself."
+      >
+        <a
+          href="https://frontendsf.vercel.app"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
+        >
+          <Play className="h-5 w-5 fill-black" />
+          Open live site
+        </a>
+        <Link
+          href="/portfolio"
+          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
+        >
+          View related projects
+        </Link>
+      </Billboard>
 
-        <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-netflix-red">
-              <Sparkles className="h-4 w-4" />
-              SignalForge
-            </div>
-            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl lg:text-6xl">
-              The technical brand surface folded into the SagarFlix ecosystem.
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
-              This page visually represents SignalForge and gives a clear jump-off point for
-              the live site. It keeps the branding connected without adding backend complexity.
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="https://frontendsf.vercel.app"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-netflix-red px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:scale-[1.02]"
-              >
-                Open Live Site
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <Link
-                href="/portfolio"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                View related projects
-              </Link>
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/45">{stat.label}</p>
-                  <p className="mt-3 text-sm font-semibold text-white">{stat.value}</p>
-                </div>
-              ))}
-            </div>
+      <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">
+        <section>
+          <div className="flex items-center gap-3">
+            <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
+            <h2 className="text-2xl font-bold text-white">What it does</h2>
           </div>
-
-          <div className="rounded-3xl border border-white/10 bg-black/45 p-5">
-            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.25em] text-white/50">
-              <MonitorPlay className="h-4 w-4 text-netflix-red" />
-              Visual representation
-            </div>
-            <div className="mt-4 space-y-4">
-              {features.map((feature) => (
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
                 <div
-                  key={feature}
-                  className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4 text-sm text-white/75"
+                  key={feature.title}
+                  className="group rounded-lg border border-white/10 bg-panel/70 p-6 transition hover:border-netflix-red/35"
                 >
-                  {feature}
+                  <Icon className="h-5 w-5 text-netflix-red" />
+                  <h3 className="mt-4 text-lg font-bold text-white">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/60">{feature.body}</p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/8 bg-white/5 p-4">
-                <ShieldCheck className="h-5 w-5 text-netflix-red" />
-                <p className="mt-3 text-sm text-white/70">
-                  Trusted surface for technical storytelling.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-white/8 bg-white/5 p-4">
-                <Workflow className="h-5 w-5 text-netflix-red" />
-                <p className="mt-3 text-sm text-white/70">
-                  Works as the public layer of the career OS.
-                </p>
-              </div>
-            </div>
+              );
+            })}
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
+              <h2 className="text-2xl font-bold text-white">Related Work</h2>
+            </div>
+            <a
+              href="https://frontendsf.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50 transition hover:text-white"
+            >
+              Visit SignalForge
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {related.map((project) => (
+              <TitleCard key={project.slug} project={project} expanded />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Github, Linkedin, Mail, MapPin, Play, Radar, Zap } from "lucide-react";
 import { projects } from "@/data/projects";
+import { Billboard } from "@/components/Billboard";
 import { TitleCard } from "@/components/TitleCard";
 
 const contactItems = [
@@ -50,57 +51,33 @@ const featured = projects.filter((project) => project.status === "Featured").sli
 export default function ResumePage() {
   return (
     <div className="pb-20">
-      <section className="relative -mt-20 h-[68vh] min-h-[480px] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_30%,rgba(229,9,20,0.4),transparent_58%),linear-gradient(155deg,#180406_0%,#080808_58%,#050505_100%)]" />
-        <div className="absolute inset-0 bg-cinematic-grid bg-[size:48px_48px] opacity-[0.08]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.95)_0%,rgba(5,5,5,0.7)_40%,transparent_76%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.9)_58%,#050505)]" />
-
-        <div className="relative flex h-full items-end pb-16">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-white/55">
-              Resume / Contact
-            </p>
-            <h1 className="mt-3 text-6xl font-black leading-[0.9] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] sm:text-7xl lg:text-8xl">
-              Sagar Patel
-            </h1>
-
-            <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/70">
-              <span className="rounded border border-white/25 px-1.5 py-0.5 text-[11px] text-white/60">
-                2026
-              </span>
-              <span>Embedded Linux</span>
-              <span className="text-white/25">•</span>
-              <span>Robotics</span>
-              <span className="text-white/25">•</span>
-              <span>AI Tooling</span>
-              <span className="text-white/25">•</span>
-              <span className="text-emerald-400">Open to opportunities</span>
-            </div>
-
-            <p className="mt-5 max-w-2xl text-base leading-7 text-white/75 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-              A systems-oriented engineer who moves between low-level debugging, software
-              architecture, and product-facing execution — and can explain the whole path.
-            </p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <a
-                href="mailto:hello@sagarpatel.dev"
-                className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-              >
-                <Play className="h-5 w-5 fill-black" />
-                Get in touch
-              </a>
-              <Link
-                href="/portfolio"
-                className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-              >
-                View the work
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Billboard
+        eyebrow="Resume / Contact"
+        title="Sagar Patel"
+        meta={[
+          <span key="embedded">Embedded Linux</span>,
+          <span key="robotics">Robotics</span>,
+          <span key="ai">AI Tooling</span>,
+          <span key="open" className="text-emerald-400">
+            Open to opportunities
+          </span>,
+        ]}
+        description="A systems-oriented engineer who moves between low-level debugging, software architecture, and product-facing execution — and can explain the whole path."
+      >
+        <a
+          href="mailto:hello@sagarpatel.dev"
+          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
+        >
+          <Play className="h-5 w-5 fill-black" />
+          Get in touch
+        </a>
+        <Link
+          href="/portfolio"
+          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
+        >
+          View the work
+        </Link>
+      </Billboard>
 
       <div className="relative z-10 mx-auto -mt-10 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">
         <section className="grid gap-3 sm:grid-cols-3">

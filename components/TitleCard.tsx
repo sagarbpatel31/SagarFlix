@@ -42,6 +42,16 @@ export function TitleCard({ project, expanded = false }: { project: Project; exp
               {project.title}
             </h3>
           </div>
+
+          {/* The artwork itself has to be tappable. The drawer's buttons only
+              exist on hover, which never fires on touch, so without this the
+              whole tile is dead on a phone. */}
+          <Link
+            href={`/projects/${project.slug}`}
+            className="absolute inset-0 z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-netflix-red"
+          >
+            <span className="sr-only">{project.title}</span>
+          </Link>
         </div>
 
         {/* Hover drawer. Collapsed to zero height at rest so the row stays compact. */}

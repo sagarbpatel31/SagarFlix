@@ -9,6 +9,13 @@ import { getOptionalEnv } from "@/lib/env";
 
 type ProviderName = "mock" | "openai";
 
+/**
+ * Server-only. Resolution reads `OPENAI_API_KEY`, which Next.js does not expose
+ * to the browser, so importing this from a client component silently downgrades
+ * every request to the mock provider. Client code should call
+ * `requestBlogDraft` in `@/lib/blog-generator-client` instead.
+ */
+
 export function getBlogGeneratorProvider(name?: string): BlogGeneratorProvider {
   return resolveBlogGeneratorProvider(name).provider;
 }

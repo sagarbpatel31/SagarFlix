@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { Copy, Download, Trash2, Sparkles, Save, WandSparkles, Tag } from "lucide-react";
 import type { BlogFormat, BlogTone } from "@/data/blogs";
 import type { BlogGenerationResult } from "@/lib/blog-generator";
-import { generateBlogDraft } from "@/lib/blog-generator";
-import { resolveBlogGeneratorProvider } from "@/lib/blog-providers";
+import { requestBlogDraft } from "@/lib/blog-generator-client";
 import {
   addSavedBlogDraft,
   clearSavedBlogDrafts,
@@ -29,9 +28,13 @@ export function BlogGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const providerResolution = resolveBlogGeneratorProvider(process.env.NEXT_PUBLIC_BLOG_PROVIDER);
-  const provider = providerResolution.provider;
-  const providerName = providerResolution.name;
+  // The configured name is all the browser can know up front. Whether the OpenAI
+  // key is actually present is a server-side fact, so the badge is corrected with
+  // the provider the route handler really used once a draft comes back.
+  const configuredProviderName =
+    process.env.NEXT_PUBLIC_BLOG_PROVIDER?.toLowerCase() === "openai" ? "openai" : "mock";
+  const [providerName, setProviderName] = useState<"mock" | "openai">(configuredProviderName);
+  const [isFallback, setIsFallback] = useState(false);
 
   useEffect(() => {
     const drafts = loadSavedBlogDrafts();
@@ -62,8 +65,10 @@ export function BlogGenerator() {
     setFeedback(null);
     try {
       const request = { topic: topic.trim() || "Untitled topic", tone, format };
-      const nextResult = await generateBlogDraft(request, provider);
-      setResult(nextResult);
+      const response = await requestBlogDraft(request);
+      setResult(response.result);
+      setProviderName(response.provider);
+      setIsFallback(response.isFallback);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Blog generation failed.");
     } finally {
@@ -128,7 +133,7 @@ export function BlogGenerator() {
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
             Provider: {providerName}
           </span>
-          {providerResolution.isFallback ? (
+          {isFallback ? (
             <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-100">
               OpenAI unavailable, using mock fallback
             </span>
@@ -136,8 +141,9 @@ export function BlogGenerator() {
         </div>
         <h2 className="mt-3 text-2xl font-bold text-white">Draft content without leaving the dashboard</h2>
         <p className="mt-2 text-sm leading-6 text-white/60">
-          The editor flow, content controls, local persistence, and preview surface are all in
-          place so a real generation backend can slot in later without redesigning the experience.
+          Drafts are generated on the server, so provider credentials stay off the client and the
+          same editor flow, content controls, local persistence, and preview surface work with
+          either the local mock generator or OpenAI.
         </p>
 
         <div className="mt-6 grid gap-4">

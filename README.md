@@ -74,6 +74,7 @@ http://localhost:3000
 - `/projects/[slug]` Project detail pages
 - `/blog` Blog dashboard
 - `/blog/generate` Blog generator UI (with OpenAI)
+- `/api/blog/generate` Server-side blog generation endpoint
 - `/blog/drafts` Blog draft library
 - `/blog/drafts/[id]` Blog draft detail
 - `/jobs` Job application tracker (with auth & persistence)
@@ -86,7 +87,7 @@ http://localhost:3000
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `DATABASE_URL` | PostgreSQL connection string (read lazily, so it is not needed at build time) | Yes |
 | `NEXTAUTH_URL` | App URL (e.g., http://localhost:3000) | Yes |
 | `NEXTAUTH_SECRET` | Secret for session encryption (generate with `openssl rand -base64 32`) | Yes |
 | `AUTH_TRUST_HOST` | Set to `true` on Vercel / behind a proxy | Recommended |
@@ -151,6 +152,20 @@ The blog generator uses a provider interface:
 
 Set `NEXT_PUBLIC_BLOG_PROVIDER=mock|openai` to choose the active provider.
 
+Generation runs **server-side** in the `POST /api/blog/generate` route handler. The browser
+posts `{ topic, tone, format }` and receives `{ result, provider, isFallback }`, so
+`OPENAI_API_KEY` is only ever read on the server and the OpenAI SDK stays out of the client
+bundle. Provider resolution in `lib/blog-providers.ts` is server-only for the same reason -
+client code should call `requestBlogDraft` from `lib/blog-generator-client.ts` instead.
+
+Access rules for the endpoint:
+
+- The `mock` provider is free and local, so it works for anonymous visitors.
+- The `openai` provider spends a real API budget, so it requires a signed-in session and
+  returns `401` otherwise.
+- Requesting `openai` without `OPENAI_API_KEY` set falls back to `mock`, and the response
+  reports `isFallback: true` so the UI can show the fallback badge.
+
 Generated blog drafts are saved locally in browser storage so you can:
 - Reload a saved draft into the editor
 - Copy the full draft or social post version
@@ -193,7 +208,7 @@ If you prefer the Vercel CLI, you can also run the migration command from your l
 Recommended runtime:
 
 - Node.js `20.x`
-- This repo pins that version in [.nvmrc](/Users/sagarpatel/Desktop/Career_resume_Site/.nvmrc) and `package.json`
+- This repo pins that version in [.nvmrc](./.nvmrc) and `package.json`
 
 ### Production Environment Variables
 
@@ -233,4 +248,4 @@ When you enable GitHub or Google sign-in, configure the callback URLs to match y
 - Add analytics/error tracking (Sentry, Vercel Analytics)
 - Implement resume page with PDF generation
 - Add project detail pages with case studies
-- Add a real AI provider behind the existing blog generator interface
+- Persist generated blog drafts to the database instead of browser storage

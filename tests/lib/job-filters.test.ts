@@ -13,7 +13,7 @@ describe("filterJobs", () => {
   it("applies tag and status filters as an OR across active filters", () => {
     const byTag = filterJobs(jobs, "", ["Embedded"]);
     expect(byTag.some((job) => job.company === "NVIDIA")).toBe(true);
-    expect(byTag.every((job) => job.tags.includes("Embedded") || job.status === "Embedded")).toBe(true);
+    expect(byTag.every((job) => job.tags.includes("Embedded"))).toBe(true);
 
     const byStatus = filterJobs(jobs, "", ["Interviewing"]);
     expect(byStatus.map((job) => job.company)).toContain("Anduril");

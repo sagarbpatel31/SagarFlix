@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { Children, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -27,6 +27,7 @@ export function ContentRow<T>({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [hovered, setHovered] = useState<number | null>(null);
 
   const updateScrollState = () => {
     const node = scrollerRef.current;
@@ -55,82 +56,100 @@ export function ContentRow<T>({
     node.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
   };
 
+  const rendered = items && renderItem ? items.map(renderItem) : Children.toArray(children);
+
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      className="group/row space-y-3"
+      onMouseLeave={() => setHovered(null)}
+    >
+      <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3">
-            <span className="h-9 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
-            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">{title}</h2>
+            <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
+            <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">{title}</h2>
           </div>
-          {description ? <p className="mt-2 text-sm leading-6 text-white/55">{description}</p> : null}
+          {description ? (
+            <p className="mt-1 pl-4 text-sm leading-6 text-white/45">{description}</p>
+          ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
-          {href ? (
-            <Link
-              href={href}
-              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
-            >
-              View all
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          ) : null}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={`Scroll ${title} left`}
-              onClick={() => scrollByAmount("left")}
-              disabled={!canScrollLeft}
-              className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white transition md:h-11 md:w-11",
-                canScrollLeft ? "hover:border-netflix-red/40 hover:bg-netflix-red/15" : "cursor-not-allowed opacity-40",
-              )}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              aria-label={`Scroll ${title} right`}
-              onClick={() => scrollByAmount("right")}
-              disabled={!canScrollRight}
-              className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white transition md:h-11 md:w-11",
-                canScrollRight ? "hover:border-netflix-red/40 hover:bg-netflix-red/15" : "cursor-not-allowed opacity-40",
-              )}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+        {href ? (
+          <Link
+            href={href}
+            className="pl-4 text-xs font-semibold uppercase tracking-[0.2em] text-white/0 transition group-hover/row:text-white/60 hover:!text-white sm:pl-0"
+          >
+            Explore all ›
+          </Link>
+        ) : null}
       </div>
 
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-bg to-transparent md:w-16" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-bg to-transparent md:w-16" />
+        <button
+          type="button"
+          aria-label={`Scroll ${title} left`}
+          onClick={() => scrollByAmount("left")}
+          className={cn(
+            "absolute left-0 top-0 z-40 hidden h-[calc(100%-4rem)] w-12 items-center justify-center rounded-r-lg bg-gradient-to-r from-black/85 to-transparent text-white opacity-0 transition group-hover/row:opacity-100 md:flex",
+            canScrollLeft ? "cursor-pointer" : "pointer-events-none !opacity-0",
+          )}
+        >
+          <ChevronLeft className="h-8 w-8 drop-shadow-lg" />
+        </button>
 
         <div
           ref={scrollerRef}
-          onScroll={updateScrollState}
-          className="scrollbar-hide overflow-x-auto pb-2 pt-1"
+          className="scrollbar-hide flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-24 pt-2"
         >
-          <div className="flex gap-4 pr-6">
-            {items && renderItem
-              ? items.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.45, delay: index * 0.03 }}
-                    className="min-w-[280px] max-w-[280px] sm:min-w-[320px] sm:max-w-[320px]"
-                  >
-                    {renderItem(item, index)}
-                  </motion.div>
-                ))
-              : children}
-          </div>
+          {rendered.map((child, index) => {
+            // The hovered tile scales up and pushes its neighbours outward,
+            // which is the interaction that makes a row feel like Netflix
+            // rather than a generic carousel.
+            const isHovered = hovered === index;
+            const direction = hovered === null ? 0 : index < hovered ? -1 : index > hovered ? 1 : 0;
+
+            return (
+              <motion.div
+                key={index}
+                onMouseEnter={() => setHovered(index)}
+                animate={{
+                  x: direction * 26,
+                  scale: isHovered ? 1.14 : 1,
+                }}
+                transition={{ type: "spring", stiffness: 320, damping: 30, mass: 0.6 }}
+                style={{
+                  zIndex: isHovered ? 30 : 1,
+                  transformOrigin:
+                    index === 0 ? "center left" : index === rendered.length - 1 ? "center right" : "center",
+                }}
+                className="w-[78%] shrink-0 snap-start sm:w-[46%] lg:w-[31%] xl:w-[23.5%]"
+              >
+                {/* Dimming the unhovered tiles is what pulls the eye to the
+                    focused one. The card opens its own drawer on hover. */}
+                <div
+                  className={cn(
+                    "h-full transition-[filter] duration-300",
+                    hovered !== null && !isHovered ? "brightness-[0.55]" : "brightness-100",
+                  )}
+                >
+                  {child}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
+
+        <button
+          type="button"
+          aria-label={`Scroll ${title} right`}
+          onClick={() => scrollByAmount("right")}
+          className={cn(
+            "absolute right-0 top-0 z-40 hidden h-[calc(100%-4rem)] w-12 items-center justify-center rounded-l-lg bg-gradient-to-l from-black/85 to-transparent text-white opacity-0 transition group-hover/row:opacity-100 md:flex",
+            canScrollRight ? "cursor-pointer" : "pointer-events-none !opacity-0",
+          )}
+        >
+          <ChevronRight className="h-8 w-8 drop-shadow-lg" />
+        </button>
       </div>
     </section>
   );

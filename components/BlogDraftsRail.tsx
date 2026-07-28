@@ -1,26 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Download, Trash2, Copy, Sparkles, Pin, Archive, ArchiveRestore } from "lucide-react";
 import { motion } from "framer-motion";
-import {
-  clearSavedBlogDrafts,
-  setSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
-  toggleArchivedBlogDraft,
-  togglePinnedBlogDraft,
-  type SavedBlogDraft,
-} from "@/lib/blog-drafts";
+import { createBlogDraftStore } from "@/lib/blog-draft-store";
+import { setSelectedBlogDraftId, type SavedBlogDraft } from "@/lib/blog-drafts";
 
 export function BlogDraftsRail() {
+  const { data: session } = useSession();
+  const signedIn = Boolean(session?.user?.id);
+  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
-    setDrafts(loadSavedBlogDrafts());
-  }, []);
+    let cancelled = false;
+
+    store
+      .list()
+      .then((next) => {
+        if (!cancelled) {
+          setDrafts(next);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFeedback("Unable to load saved drafts right now.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store]);
 
   const sortedDrafts = useMemo(() => {
     return [...drafts].sort((a, b) => {
@@ -34,7 +48,17 @@ export function BlogDraftsRail() {
     });
   }, [drafts]);
 
-  const refreshDrafts = () => setDrafts(loadSavedBlogDrafts());
+  const runMutation = useCallback(
+    async (mutate: () => Promise<SavedBlogDraft[]>, message: string, failure: string) => {
+      try {
+        setDrafts(await mutate());
+        setFeedback(message);
+      } catch {
+        setFeedback(failure);
+      }
+    },
+    [],
+  );
 
   const handleCopy = async (value: string, label: string) => {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
@@ -46,26 +70,25 @@ export function BlogDraftsRail() {
     setFeedback(`${label} copied.`);
   };
 
-  const handleDelete = (id: string) => {
-    setDrafts(removeSavedBlogDraft(id));
-    setFeedback("Draft deleted.");
-  };
+  const handleDelete = (id: string) =>
+    runMutation(() => store.remove(id), "Draft deleted.", "Unable to delete the draft.");
 
-  const handleTogglePinned = (id: string) => {
-    setDrafts(togglePinnedBlogDraft(id));
-    setFeedback("Draft pin updated.");
-  };
+  const handleTogglePinned = (draft: SavedBlogDraft) =>
+    runMutation(
+      () => store.setPinned(draft.id, !draft.pinned),
+      "Draft pin updated.",
+      "Unable to update the draft pin.",
+    );
 
-  const handleToggleArchived = (id: string) => {
-    setDrafts(toggleArchivedBlogDraft(id));
-    setFeedback("Draft archive status updated.");
-  };
+  const handleToggleArchived = (draft: SavedBlogDraft) =>
+    runMutation(
+      () => store.setArchived(draft.id, !draft.archived),
+      "Draft archive status updated.",
+      "Unable to update the draft archive status.",
+    );
 
-  const handleClearAll = () => {
-    clearSavedBlogDrafts();
-    refreshDrafts();
-    setFeedback("All saved drafts cleared.");
-  };
+  const handleClearAll = () =>
+    runMutation(() => store.clear(), "All saved drafts cleared.", "Unable to clear saved drafts.");
 
   return (
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6">
@@ -79,7 +102,9 @@ export function BlogDraftsRail() {
             Drafts you can bring back later
           </h2>
           <p className="mt-2 text-sm text-white/55">
-            These are stored locally in your browser. No backend required yet.
+            {store.isRemote
+              ? "Saved to your account, so these drafts follow you across devices."
+              : "Stored locally in your browser. Sign in to keep drafts across devices."}
           </p>
         </div>
 
@@ -165,7 +190,7 @@ export function BlogDraftsRail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleTogglePinned(draft.id)}
+                    onClick={() => handleTogglePinned(draft)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75"
                   >
                     <Pin className="h-4 w-4" />
@@ -173,7 +198,7 @@ export function BlogDraftsRail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleToggleArchived(draft.id)}
+                    onClick={() => handleToggleArchived(draft)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75"
                   >
                     {draft.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}

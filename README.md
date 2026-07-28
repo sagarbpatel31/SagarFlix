@@ -9,7 +9,7 @@ SagarFlix is a Netflix-style career operating system for Sagar Patel. The curren
 - Blog dashboard and generator UI (with OpenAI integration)
 - Job application tracker with Google Sheets CSV import
 - **User authentication (NextAuth.js) with GitHub/Google OAuth**
-- **PostgreSQL database with Prisma ORM for job persistence**
+- **PostgreSQL database with Prisma ORM for job and blog draft persistence**
 - Responsive, cinematic dashboard styling
 
 ## Tech Stack
@@ -38,10 +38,10 @@ cp .env.example .env
 # Edit .env with your credentials
 ```
 
-3. Set up the database:
+3. Set up the database by applying the committed migrations:
 
 ```bash
-npx prisma migrate dev --name init
+npm run db:migrate:deploy
 ```
 
 4. Run the app locally:
@@ -75,6 +75,8 @@ http://localhost:3000
 - `/blog` Blog dashboard
 - `/blog/generate` Blog generator UI (with OpenAI)
 - `/api/blog/generate` Server-side blog generation endpoint
+- `/api/blog/drafts` Blog draft persistence (list, create, clear)
+- `/api/blog/drafts/[id]` Blog draft update and delete
 - `/blog/drafts` Blog draft library
 - `/blog/drafts/[id]` Blog draft detail
 - `/jobs` Job application tracker (with auth & persistence)
@@ -166,19 +168,51 @@ Access rules for the endpoint:
 - Requesting `openai` without `OPENAI_API_KEY` set falls back to `mock`, and the response
   reports `isFallback: true` so the UI can show the fallback badge.
 
-Generated blog drafts are saved locally in browser storage so you can:
-- Reload a saved draft into the editor
-- Copy the full draft or social post version
-- Clear saved drafts from the UI
+Generated blog drafts can be:
+- Reloaded into the editor
+- Copied as the full draft or the social post version
+- Pinned, archived, deleted, or cleared from the UI
 
 Saved drafts can also be selected from the blog dashboard and loaded into `/blog/generate`.
 
+### Draft Persistence
+
+Where drafts live depends on the session, and `lib/blog-draft-store.ts` picks the backend:
+
+- **Signed in** - drafts are stored in PostgreSQL through `/api/blog/drafts`, so they follow
+  you across devices. Every route scopes reads and writes to the session user, and per-draft
+  updates return `404` rather than `403` for a draft owned by someone else so the endpoint
+  does not confirm that an id exists.
+- **Anonymous** - drafts stay in browser storage, which is what keeps the generator usable
+  without an account.
+
+Both backends expose the same interface and resolve to the full next list after each
+mutation, so the UI components do not branch on which one is active.
+
 ## Database Schema
 
-Run migrations after updating the Prisma schema:
+Migrations are committed under `prisma/migrations`, which is what makes
+`prisma migrate deploy` able to build the schema on a fresh database:
+
+- `20260703000000_init` - users, accounts, sessions, and job applications
+- `20260703000001_add_blog_draft` - blog draft persistence
+
+Apply them to an empty database with `npm run db:migrate:deploy`. After changing
+`prisma/schema.prisma`, generate the next migration with:
 
 ```bash
 npx prisma migrate dev --name <migration_name>
+```
+
+Commit the generated `prisma/migrations/<timestamp>_<name>/migration.sql` alongside the
+schema change - `migrate deploy` only applies migrations that are in the repository.
+
+If you already created these tables by hand or with `prisma db push`, mark the existing
+migrations as applied instead of re-running them:
+
+```bash
+npx prisma migrate resolve --applied 20260703000000_init
+npx prisma migrate resolve --applied 20260703000001_add_blog_draft
 ```
 
 View the database:
@@ -248,4 +282,4 @@ When you enable GitHub or Google sign-in, configure the callback URLs to match y
 - Add analytics/error tracking (Sentry, Vercel Analytics)
 - Implement resume page with PDF generation
 - Add project detail pages with case studies
-- Persist generated blog drafts to the database instead of browser storage
+- Migrate a visitor's local drafts into their account on first sign-in

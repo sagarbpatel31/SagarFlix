@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { CalendarDays, FileText, Layers3, Pin, Sparkles } from "lucide-react";
-import { loadSavedBlogDrafts, type SavedBlogDraft } from "@/lib/blog-drafts";
+import { createBlogDraftStore } from "@/lib/blog-draft-store";
+import type { SavedBlogDraft } from "@/lib/blog-drafts";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -13,11 +15,31 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftsSummary() {
+  const { data: session } = useSession();
+  const signedIn = Boolean(session?.user?.id);
+  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
 
   useEffect(() => {
-    setDrafts(loadSavedBlogDrafts());
-  }, []);
+    let cancelled = false;
+
+    store
+      .list()
+      .then((next) => {
+        if (!cancelled) {
+          setDrafts(next);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDrafts([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store]);
 
   const sortedDrafts = useMemo(
     () =>

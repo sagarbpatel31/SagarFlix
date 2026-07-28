@@ -1,18 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Copy, Download, Trash2, Sparkles, Save, WandSparkles, Tag } from "lucide-react";
 import type { BlogFormat, BlogTone } from "@/data/blogs";
 import type { BlogGenerationResult } from "@/lib/blog-generator";
 import { requestBlogDraft } from "@/lib/blog-generator-client";
+import { createBlogDraftStore } from "@/lib/blog-draft-store";
 import {
-  addSavedBlogDraft,
-  clearSavedBlogDrafts,
   clearSelectedBlogDraftId,
   getSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
   type SavedBlogDraft,
 } from "@/lib/blog-drafts";
 
@@ -20,6 +18,9 @@ const tones: BlogTone[] = ["Technical", "Reflective", "Direct", "Founder"];
 const formats: BlogFormat[] = ["Blog", "LinkedIn Post", "X Thread"];
 
 export function BlogGenerator() {
+  const { data: session } = useSession();
+  const signedIn = Boolean(session?.user?.id);
+  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [topic, setTopic] = useState("Simulation-first robotics workflows");
   const [tone, setTone] = useState<BlogTone>("Technical");
   const [format, setFormat] = useState<BlogFormat>("Blog");
@@ -37,27 +38,45 @@ export function BlogGenerator() {
   const [isFallback, setIsFallback] = useState(false);
 
   useEffect(() => {
-    const drafts = loadSavedBlogDrafts();
-    setSavedDrafts(drafts);
+    let cancelled = false;
 
-    const selectedId = getSelectedBlogDraftId();
-    if (!selectedId) {
-      return;
-    }
+    store
+      .list()
+      .then((drafts) => {
+        if (cancelled) {
+          return;
+        }
 
-    const selectedDraft = drafts.find((draft) => draft.id === selectedId);
-    if (!selectedDraft) {
-      clearSelectedBlogDraftId();
-      return;
-    }
+        setSavedDrafts(drafts);
 
-    setTopic(selectedDraft.request.topic);
-    setTone(selectedDraft.request.tone);
-    setFormat(selectedDraft.request.format);
-    setResult(selectedDraft.result);
-    setFeedback(`Loaded "${selectedDraft.result.title}" from the blog dashboard.`);
-    clearSelectedBlogDraftId();
-  }, []);
+        const selectedId = getSelectedBlogDraftId();
+        if (!selectedId) {
+          return;
+        }
+
+        const selectedDraft = drafts.find((draft) => draft.id === selectedId);
+        if (!selectedDraft) {
+          clearSelectedBlogDraftId();
+          return;
+        }
+
+        setTopic(selectedDraft.request.topic);
+        setTone(selectedDraft.request.tone);
+        setFormat(selectedDraft.request.format);
+        setResult(selectedDraft.result);
+        setFeedback(`Loaded "${selectedDraft.result.title}" from the blog dashboard.`);
+        clearSelectedBlogDraftId();
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Unable to load saved drafts right now.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -76,16 +95,20 @@ export function BlogGenerator() {
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!result) {
       setFeedback("Generate a draft before saving it.");
       return;
     }
 
     const request = { topic: topic.trim() || "Untitled topic", tone, format };
-    const nextDrafts = addSavedBlogDraft(request, result);
-    setSavedDrafts(nextDrafts);
-    setFeedback("Draft saved locally.");
+
+    try {
+      setSavedDrafts(await store.add(request, result));
+      setFeedback(store.isRemote ? "Draft saved to your account." : "Draft saved locally.");
+    } catch {
+      setError("Unable to save the draft right now.");
+    }
   };
 
   const handleLoadDraft = (draft: SavedBlogDraft) => {
@@ -96,10 +119,13 @@ export function BlogGenerator() {
     setFeedback(`Loaded "${draft.result.title}".`);
   };
 
-  const handleDeleteDraft = (id: string) => {
-    const nextDrafts = removeSavedBlogDraft(id);
-    setSavedDrafts(nextDrafts);
-    setFeedback("Draft removed.");
+  const handleDeleteDraft = async (id: string) => {
+    try {
+      setSavedDrafts(await store.remove(id));
+      setFeedback("Draft removed.");
+    } catch {
+      setError("Unable to remove the draft right now.");
+    }
   };
 
   const handleCopy = async (value: string, label: string) => {
@@ -112,10 +138,13 @@ export function BlogGenerator() {
     setFeedback(`${label} copied.`);
   };
 
-  const handleClearAll = () => {
-    clearSavedBlogDrafts();
-    setSavedDrafts([]);
-    setFeedback("All saved drafts cleared.");
+  const handleClearAll = async () => {
+    try {
+      setSavedDrafts(await store.clear());
+      setFeedback("All saved drafts cleared.");
+    } catch {
+      setError("Unable to clear saved drafts right now.");
+    }
   };
 
   return (

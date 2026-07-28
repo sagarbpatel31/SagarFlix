@@ -12,12 +12,10 @@ import {
   Trash2,
   Sparkles,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { createBlogDraftStore } from "@/lib/blog-draft-store";
 import {
   clearSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
-  toggleArchivedBlogDraft,
-  togglePinnedBlogDraft,
   setSelectedBlogDraftId,
   type SavedBlogDraft,
 } from "@/lib/blog-drafts";
@@ -33,12 +31,32 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftDetail({ draftId }: { draftId: string }) {
+  const { data: session } = useSession();
+  const signedIn = Boolean(session?.user?.id);
+  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
-    setDrafts(loadSavedBlogDrafts());
-  }, []);
+    let cancelled = false;
+
+    store
+      .list()
+      .then((next) => {
+        if (!cancelled) {
+          setDrafts(next);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFeedback("Unable to load this draft right now.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store]);
 
   const draft = useMemo(
     () => drafts.find((item) => item.id === draftId),
@@ -64,33 +82,44 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     window.location.href = "/blog/generate";
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!draft) {
       return;
     }
 
-    const nextDrafts = removeSavedBlogDraft(draft.id);
-    setDrafts(nextDrafts);
-    clearSelectedBlogDraftId();
-    setFeedback("Draft deleted.");
+    try {
+      setDrafts(await store.remove(draft.id));
+      clearSelectedBlogDraftId();
+      setFeedback("Draft deleted.");
+    } catch {
+      setFeedback("Unable to delete the draft.");
+    }
   };
 
-  const handleTogglePinned = () => {
+  const handleTogglePinned = async () => {
     if (!draft) {
       return;
     }
 
-    setDrafts(togglePinnedBlogDraft(draft.id));
-    setFeedback(draft.pinned ? "Draft unpinned." : "Draft pinned.");
+    try {
+      setDrafts(await store.setPinned(draft.id, !draft.pinned));
+      setFeedback(draft.pinned ? "Draft unpinned." : "Draft pinned.");
+    } catch {
+      setFeedback("Unable to update the draft pin.");
+    }
   };
 
-  const handleToggleArchived = () => {
+  const handleToggleArchived = async () => {
     if (!draft) {
       return;
     }
 
-    setDrafts(toggleArchivedBlogDraft(draft.id));
-    setFeedback(draft.archived ? "Draft unarchived." : "Draft archived.");
+    try {
+      setDrafts(await store.setArchived(draft.id, !draft.archived));
+      setFeedback(draft.archived ? "Draft unarchived." : "Draft archived.");
+    } catch {
+      setFeedback("Unable to update the draft archive status.");
+    }
   };
 
   if (!draft) {

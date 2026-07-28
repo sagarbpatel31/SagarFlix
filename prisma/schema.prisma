@@ -17,6 +17,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   jobApps       JobApplication[]
+  blogDrafts    BlogDraft[]
 }
 
 model Account {
@@ -86,4 +87,37 @@ enum JobPriority {
   High
   Medium
   Low
+}
+
+model BlogDraft {
+  id          String     @id @default(cuid())
+  topic       String
+  tone        BlogTone
+  format      BlogFormat
+  title       String
+  summary     String
+  fullContent String
+  tags        String
+  socialPost  String
+  pinned      Boolean    @default(false)
+  archived    Boolean    @default(false)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+enum BlogTone {
+  Technical
+  Reflective
+  Direct
+  Founder
+}
+
+enum BlogFormat {
+  Blog
+  LinkedIn_Post
+  X_Thread
 }

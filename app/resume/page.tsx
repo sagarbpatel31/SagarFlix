@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { ExternalLink, Github, Linkedin, Mail, MapPin, Play, Radar, Zap } from "lucide-react";
 import { projects } from "@/data/projects";
-import { Billboard } from "@/components/Billboard";
+import { Billboard, BillboardAction } from "@/components/Billboard";
 import { TitleCard } from "@/components/TitleCard";
 
 const contactItems = [
@@ -64,19 +63,13 @@ export default function ResumePage() {
         ]}
         description="A systems-oriented engineer who moves between low-level debugging, software architecture, and product-facing execution — and can explain the whole path."
       >
-        <a
-          href="mailto:hello@sagarpatel.dev"
-          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-        >
+        <BillboardAction href="mailto:hello@sagarpatel.dev">
           <Play className="h-5 w-5 fill-black" />
           Get in touch
-        </a>
-        <Link
-          href="/portfolio"
-          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-        >
+        </BillboardAction>
+        <BillboardAction href="/portfolio" variant="secondary">
           View the work
-        </Link>
+        </BillboardAction>
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-10 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">

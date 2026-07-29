@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useMemo } from "react";
 import { CalendarDays, FileText, Layers3, Pin, Sparkles } from "lucide-react";
-import { createBlogDraftStore } from "@/lib/blog-draft-store";
-import type { SavedBlogDraft } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -15,43 +13,16 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftsSummary() {
-  const { data: session } = useSession();
-  const signedIn = Boolean(session?.user?.id);
-  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
-  const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
+  // The store already returns drafts in the canonical order, so "Latest" is a
+  // single max rather than a full re-sort to read one element.
+  const { drafts } = useBlogDraftStore();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    store
-      .list()
-      .then((next) => {
-        if (!cancelled) {
-          setDrafts(next);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setDrafts([]);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [store]);
-
-  const sortedDrafts = useMemo(
+  const latestUpdatedAt = useMemo(
     () =>
-      [...drafts].sort((a, b) => {
-        if (a.pinned !== b.pinned) {
-          return a.pinned ? -1 : 1;
-        }
-        if (a.archived !== b.archived) {
-          return a.archived ? 1 : -1;
-        }
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      }),
+      drafts.reduce<string | null>(
+        (latest, draft) => (latest === null || draft.updatedAt > latest ? draft.updatedAt : latest),
+        null,
+      ),
     [drafts],
   );
 
@@ -65,7 +36,7 @@ export function BlogDraftsSummary() {
       },
       {
         label: "Latest",
-        value: sortedDrafts.length > 0 ? formatDate(sortedDrafts[0].updatedAt) : "None",
+        value: latestUpdatedAt ? formatDate(latestUpdatedAt) : "None",
         icon: CalendarDays,
       },
       {
@@ -74,7 +45,7 @@ export function BlogDraftsSummary() {
         icon: Layers3,
       },
     ],
-    [drafts, sortedDrafts],
+    [drafts, latestUpdatedAt],
   );
 
   return (

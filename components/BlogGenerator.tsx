@@ -1,35 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Download, Trash2, Sparkles, Save, WandSparkles, Tag } from "lucide-react";
 import type { BlogFormat, BlogTone } from "@/data/blogs";
 import type { BlogGenerationResult } from "@/lib/blog-generator";
 import { requestBlogDraft } from "@/lib/blog-generator-client";
-import { createBlogDraftStore } from "@/lib/blog-draft-store";
 import {
   clearSelectedBlogDraftId,
   getSelectedBlogDraftId,
   type SavedBlogDraft,
 } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
 
 const tones: BlogTone[] = ["Technical", "Reflective", "Direct", "Founder"];
 const formats: BlogFormat[] = ["Blog", "LinkedIn Post", "X Thread"];
 
 export function BlogGenerator() {
-  const { data: session, status } = useSession();
-  const signedIn = Boolean(session?.user?.id);
-  // While the session is resolving, `useSession` reports signed-out. Acting on
-  // that would pick the local store, miss a remote draft id, and clear the
-  // selection before the authenticated store ever loads.
-  const sessionLoading = status === "loading";
-  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
+  const { store, drafts: savedDrafts, setDrafts: setSavedDrafts, ready, error: loadError } =
+    useBlogDraftStore();
   const [topic, setTopic] = useState("Simulation-first robotics workflows");
   const [tone, setTone] = useState<BlogTone>("Technical");
   const [format, setFormat] = useState<BlogFormat>("Blog");
   const [result, setResult] = useState<BlogGenerationResult | null>(null);
-  const [savedDrafts, setSavedDrafts] = useState<SavedBlogDraft[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -41,50 +34,31 @@ export function BlogGenerator() {
   const [providerName, setProviderName] = useState<"mock" | "openai">(configuredProviderName);
   const [isFallback, setIsFallback] = useState(false);
 
+  // Runs once the correct store has loaded, so a draft id written by the rail
+  // is resolved against the list it actually belongs to.
   useEffect(() => {
-    if (sessionLoading) {
+    if (!ready) {
       return;
     }
 
-    let cancelled = false;
+    const selectedId = getSelectedBlogDraftId();
+    if (!selectedId) {
+      return;
+    }
 
-    store
-      .list()
-      .then((drafts) => {
-        if (cancelled) {
-          return;
-        }
+    const selectedDraft = savedDrafts.find((draft) => draft.id === selectedId);
+    if (!selectedDraft) {
+      clearSelectedBlogDraftId();
+      return;
+    }
 
-        setSavedDrafts(drafts);
-
-        const selectedId = getSelectedBlogDraftId();
-        if (!selectedId) {
-          return;
-        }
-
-        const selectedDraft = drafts.find((draft) => draft.id === selectedId);
-        if (!selectedDraft) {
-          clearSelectedBlogDraftId();
-          return;
-        }
-
-        setTopic(selectedDraft.request.topic);
-        setTone(selectedDraft.request.tone);
-        setFormat(selectedDraft.request.format);
-        setResult(selectedDraft.result);
-        setFeedback(`Loaded "${selectedDraft.result.title}" from the blog dashboard.`);
-        clearSelectedBlogDraftId();
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Unable to load saved drafts right now.");
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [store, sessionLoading]);
+    setTopic(selectedDraft.request.topic);
+    setTone(selectedDraft.request.tone);
+    setFormat(selectedDraft.request.format);
+    setResult(selectedDraft.result);
+    setFeedback(`Loaded "${selectedDraft.result.title}" from the blog dashboard.`);
+    clearSelectedBlogDraftId();
+  }, [ready, savedDrafts]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -186,9 +160,9 @@ export function BlogGenerator() {
         </p>
 
         <div className="mt-6 grid gap-4">
-          {error ? (
+          {error || loadError ? (
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
-              {error}
+              {error ?? loadError}
             </div>
           ) : null}
           {feedback ? (

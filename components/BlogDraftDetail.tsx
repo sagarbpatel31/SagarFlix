@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Archive,
@@ -12,13 +12,9 @@ import {
   Trash2,
   Sparkles,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { createBlogDraftStore } from "@/lib/blog-draft-store";
-import {
-  clearSelectedBlogDraftId,
-  setSelectedBlogDraftId,
-  type SavedBlogDraft,
-} from "@/lib/blog-drafts";
+import { clearSelectedBlogDraftId, setSelectedBlogDraftId } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
+import { Skeleton } from "@/components/Skeleton";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString(undefined, {
@@ -31,39 +27,8 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftDetail({ draftId }: { draftId: string }) {
-  const { data: session, status } = useSession();
-  const signedIn = Boolean(session?.user?.id);
-  // Resolving the session first stops a remote draft from rendering "not
-  // found" on the local store's empty first pass.
-  const sessionLoading = status === "loading";
-  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
-  const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
+  const { store, drafts, setDrafts, ready, error } = useBlogDraftStore();
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (sessionLoading) {
-      return;
-    }
-
-    let cancelled = false;
-
-    store
-      .list()
-      .then((next) => {
-        if (!cancelled) {
-          setDrafts(next);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setFeedback("Unable to load this draft right now.");
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [store, sessionLoading]);
 
   const draft = useMemo(
     () => drafts.find((item) => item.id === draftId),
@@ -129,11 +94,27 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     }
   };
 
+  // "Not found" is only true once the right store has actually reported. Before
+  // that the list is legitimately empty, and rendering the miss would flash the
+  // wrong answer at every signed-in visitor.
+  if (!ready) {
+    return (
+      <section className="rounded-3xl border border-white/10 bg-black/50 p-8">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="mt-5 h-10 w-2/3" />
+        <Skeleton className="mt-4 h-4 w-full" />
+        <Skeleton className="mt-2 h-4 w-5/6" />
+      </section>
+    );
+  }
+
   if (!draft) {
     return (
       <section className="rounded-3xl border border-white/10 bg-black/50 p-8">
         <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Draft</p>
-        <h1 className="mt-4 text-3xl font-black text-white">Draft not found</h1>
+        <h1 className="mt-4 text-3xl font-black text-white">
+          {error ? "Unable to load this draft" : "Draft not found"}
+        </h1>
         <p className="mt-4 text-base leading-7 text-white/65">
           This draft is not saved in the current browser. Go back to the library or generate a new draft.
         </p>

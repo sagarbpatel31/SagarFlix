@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ChevronDown, ExternalLink, Play, Plus } from "lucide-react";
 import type { Project } from "@/data/projects";
 import { cn } from "@/lib/utils";
@@ -18,7 +17,15 @@ export function TitleCard({ project, expanded = false }: { project: Project; exp
   const liveLink = project.links.find((link) => link.external);
 
   return (
-    <article className="group/card relative h-full w-full">
+    // The lift applies whenever the drawer is already open (grid pages); in a
+    // row the tile is scaled by ContentRow instead, so a second transform there
+    // would fight it.
+    <article
+      className={cn(
+        "group/card relative h-full w-full",
+        expanded && "transition-transform duration-300 hover:-translate-y-1.5",
+      )}
+    >
       <div className="relative overflow-hidden rounded-lg border border-white/10 bg-panel shadow-[0_12px_40px_rgba(0,0,0,0.45)]">
         {/* Backdrop */}
         <div className="relative aspect-video w-full">
@@ -126,18 +133,3 @@ export function TitleCard({ project, expanded = false }: { project: Project; exp
   );
 }
 
-/**
- * Static grid variant. The row version leans on hover to reveal detail, which
- * never fires on touch, so grid pages render the drawer open.
- */
-export function TitleCardStatic({ project }: { project: Project }) {
-  return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 240, damping: 20 }}
-      className="h-full"
-    >
-      <TitleCard project={project} expanded />
-    </motion.div>
-  );
-}

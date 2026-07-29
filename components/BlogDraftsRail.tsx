@@ -1,52 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Download, Trash2, Copy, Sparkles, Pin, Archive, ArchiveRestore } from "lucide-react";
 import { motion } from "framer-motion";
-import { createBlogDraftStore } from "@/lib/blog-draft-store";
 import { setSelectedBlogDraftId, type SavedBlogDraft } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
 
 export function BlogDraftsRail() {
-  const { data: session } = useSession();
-  const signedIn = Boolean(session?.user?.id);
-  const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
-  const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
+  const { store, drafts, setDrafts, error } = useBlogDraftStore();
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    store
-      .list()
-      .then((next) => {
-        if (!cancelled) {
-          setDrafts(next);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setFeedback("Unable to load saved drafts right now.");
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [store]);
-
-  const sortedDrafts = useMemo(() => {
-    return [...drafts].sort((a, b) => {
-      if (a.pinned !== b.pinned) {
-        return a.pinned ? -1 : 1;
-      }
-      if (a.archived !== b.archived) {
-        return a.archived ? 1 : -1;
-      }
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [drafts]);
 
   const runMutation = useCallback(
     async (mutate: () => Promise<SavedBlogDraft[]>, message: string, failure: string) => {
@@ -119,15 +82,15 @@ export function BlogDraftsRail() {
         </button>
       </div>
 
-      {feedback ? (
+      {error || feedback ? (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
-          {feedback}
+          {error ?? feedback}
         </div>
       ) : null}
 
       <div className="mt-5 space-y-3">
-        {sortedDrafts.length > 0 ? (
-          sortedDrafts.map((draft) => (
+        {drafts.length > 0 ? (
+          drafts.map((draft) => (
             <motion.article
               key={draft.id}
               initial={{ opacity: 0, y: 10 }}

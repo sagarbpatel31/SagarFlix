@@ -3,17 +3,8 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { blogDraftInputSchema } from "@/lib/blog-draft-input";
 import { deserializeBlogDraft, serializeBlogDraft } from "@/lib/blog-draft-records";
+import { MAX_REMOTE_DRAFTS, draftLimitMessage } from "@/lib/blog-draft-limits";
 import { prisma } from "@/lib/prisma";
-
-/**
- * Cap on stored drafts per user.
- *
- * This is enforced on create, not just on read. Truncating only the read would
- * leave drafts past the cap sitting in the database with no way to reach them —
- * there is no pagination and no single-draft GET — so the write side has to
- * refuse rather than let a draft be saved into a hole.
- */
-const MAX_DRAFTS_PER_USER = 200;
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -24,7 +15,7 @@ export async function GET() {
   const drafts = await prisma.blogDraft.findMany({
     where: { userId: session.user.id },
     orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
-    take: MAX_DRAFTS_PER_USER,
+    take: MAX_REMOTE_DRAFTS,
   });
 
   return NextResponse.json(drafts.map((draft) => deserializeBlogDraft(draft)));
@@ -58,11 +49,9 @@ export async function POST(request: Request) {
   // the user never agreed to give up.
   const stored = await prisma.blogDraft.count({ where: { userId: session.user.id } });
 
-  if (stored >= MAX_DRAFTS_PER_USER) {
+  if (stored >= MAX_REMOTE_DRAFTS) {
     return NextResponse.json(
-      {
-        error: `Draft limit reached (${MAX_DRAFTS_PER_USER}). Delete a saved draft to make room.`,
-      },
+      { error: draftLimitMessage(MAX_REMOTE_DRAFTS) },
       { status: 409 },
     );
   }

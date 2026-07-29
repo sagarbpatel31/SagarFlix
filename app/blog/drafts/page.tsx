@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Play, Sparkles, WandSparkles } from "lucide-react";
-import { Billboard } from "@/components/Billboard";
+import { Billboard, BillboardAction } from "@/components/Billboard";
 import { BlogDraftsSummary } from "@/components/BlogDraftsSummary";
 import { BlogDraftsRail } from "@/components/BlogDraftsRail";
 import { blogIdeas } from "@/data/blogs";
@@ -30,20 +30,14 @@ export default function BlogDraftsPage() {
           </Link>
         }
       >
-        <Link
-          href="/blog/generate"
-          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-        >
+        <BillboardAction href="/blog/generate">
           <Play className="h-5 w-5 fill-black" />
           Generate New Draft
-        </Link>
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-        >
+        </BillboardAction>
+        <BillboardAction href="/blog" variant="secondary">
           <WandSparkles className="h-5 w-5" />
           Open Dashboard
-        </Link>
+        </BillboardAction>
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-10 px-4 sm:px-6 lg:px-8">

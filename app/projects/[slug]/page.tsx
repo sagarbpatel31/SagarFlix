@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Play, Plus, Sparkles } from "lucide-react";
 import { getProjectBySlug, projects } from "@/data/projects";
-import { Billboard } from "@/components/Billboard";
+import { Billboard, BillboardAction } from "@/components/Billboard";
 import { TitleCard } from "@/components/TitleCard";
 
 export function generateStaticParams() {
@@ -59,31 +59,20 @@ export default async function ProjectDetailPage({
         }
       >
         {liveLink ? (
-          <a
-            href={liveLink.href}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-          >
+          <BillboardAction href={liveLink.href} external>
             <Play className="h-5 w-5 fill-black" />
             Open live site
-          </a>
+          </BillboardAction>
         ) : (
-          <Link
-            href="/portfolio"
-            className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-          >
+          <BillboardAction href="/portfolio">
             <Play className="h-5 w-5 fill-black" />
             Browse portfolio
-          </Link>
+          </BillboardAction>
         )}
-        <Link
-          href="/jobs"
-          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-        >
+        <BillboardAction href="/jobs" variant="secondary">
           <Plus className="h-5 w-5" />
           Match to roles
-        </Link>
+        </BillboardAction>
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">

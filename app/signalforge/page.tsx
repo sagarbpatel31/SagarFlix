@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { ExternalLink, Play, ShieldCheck, Sparkles, Workflow } from "lucide-react";
-import { Billboard } from "@/components/Billboard";
+import { Billboard, BillboardAction } from "@/components/Billboard";
 import { TitleCard } from "@/components/TitleCard";
 import { projects } from "@/data/projects";
 
@@ -41,21 +40,13 @@ export default function SignalForgePage() {
         ]}
         description="SignalForge is the outward-facing brand layer of the ecosystem — storytelling and clarity, pointed at the live site, without adding backend complexity to SagarFlix itself."
       >
-        <a
-          href="https://frontendsf.vercel.app"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-        >
+        <BillboardAction href={"https://frontendsf.vercel.app"} external>
           <Play className="h-5 w-5 fill-black" />
           Open live site
-        </a>
-        <Link
-          href="/portfolio"
-          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-        >
+        </BillboardAction>
+        <BillboardAction href="/portfolio" variant="secondary">
           View related projects
-        </Link>
+        </BillboardAction>
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">

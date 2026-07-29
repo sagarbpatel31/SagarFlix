@@ -28,5 +28,4 @@ export const blogDraftUpdateSchema = z
     message: "At least one field must be provided.",
   });
 
-export type BlogDraftInput = z.infer<typeof blogDraftInputSchema>;
 export type BlogDraftUpdateInput = z.infer<typeof blogDraftUpdateSchema>;

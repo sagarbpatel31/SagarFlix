@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { ExternalLink, Layers3, Play, Radar, Sparkles } from "lucide-react";
-import { Billboard } from "@/components/Billboard";
+import { Billboard, BillboardAction } from "@/components/Billboard";
 import { TitleCard } from "@/components/TitleCard";
 import { projects } from "@/data/projects";
 
@@ -41,21 +40,13 @@ export default function SagarOsPage() {
         ]}
         description="Where SignalForge is the public face, Sagar OS is the operating layer underneath — tracking, notes, and structured evidence that keep the career system running on something more durable than memory."
       >
-        <a
-          href="https://sagar-os.vercel.app"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 rounded bg-white px-7 py-3 text-base font-bold text-black transition hover:bg-white/80"
-        >
+        <BillboardAction href={"https://sagar-os.vercel.app"} external>
           <Play className="h-5 w-5 fill-black" />
           Open live site
-        </a>
-        <Link
-          href="/jobs"
-          className="inline-flex items-center gap-2 rounded bg-white/20 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
-        >
+        </BillboardAction>
+        <BillboardAction href="/jobs" variant="secondary">
           Open job tracker
-        </Link>
+        </BillboardAction>
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">

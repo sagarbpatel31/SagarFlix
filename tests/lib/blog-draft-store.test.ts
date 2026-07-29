@@ -102,14 +102,12 @@ describe("remote blog draft store", () => {
     expect(fetchImpl.mock.calls[0][0]).toBe("/api/blog/drafts/a%2Fb");
   });
 
-  it("clears through the collection endpoint rather than one request per draft", async () => {
-    fetchImpl
-      .mockResolvedValueOnce(jsonResponse({ success: true, count: 3 }))
-      .mockResolvedValueOnce(jsonResponse([]));
+  it("clears with a single request and does not re-read a list it knows is empty", async () => {
+    fetchImpl.mockResolvedValueOnce(jsonResponse({ success: true, count: 3 }));
 
     const drafts = await createRemoteBlogDraftStore(fetchImpl as unknown as typeof fetch).clear();
 
-    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
     expect(fetchImpl.mock.calls[0][1].method).toBe("DELETE");
     expect(drafts).toEqual([]);
   });

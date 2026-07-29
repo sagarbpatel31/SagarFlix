@@ -3,6 +3,7 @@ import type { BlogFormat as DbBlogFormat, BlogTone as DbBlogTone } from "@prisma
 import type { BlogFormat, BlogTone } from "@/data/blogs";
 import type { BlogGenerationRequest, BlogGenerationResult } from "@/lib/blog-generator";
 import type { SavedBlogDraft } from "@/lib/blog-drafts";
+import { parseList } from "@/lib/list-serialization";
 
 export type BlogDraftRecord = {
   id: string;
@@ -49,22 +50,6 @@ export function toDbFormat(format: BlogFormat): DbBlogFormat {
 
 export function fromDbFormat(format: string): BlogFormat {
   return formatFromDb[format] ?? "Blog";
-}
-
-function parseTags(value: string) {
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (Array.isArray(parsed)) {
-      return parsed.filter((item): item is string => typeof item === "string");
-    }
-  } catch {
-    // fall through to comma-separated parsing
-  }
-
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 export function serializeBlogDraft(
@@ -127,7 +112,7 @@ export function deserializeBlogDraft(record: BlogDraftRecord): SavedBlogDraft {
       title: record.title,
       summary: record.summary,
       fullContent: record.fullContent,
-      tags: parseTags(record.tags),
+      tags: parseList(record.tags),
       socialPost: record.socialPost,
     },
   };

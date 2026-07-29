@@ -1,5 +1,62 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+
+const actionStyles = {
+  primary: "bg-white text-black hover:bg-white/80 px-7",
+  secondary: "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 px-6",
+} as const;
+
+/**
+ * The billboard's Play / More Info buttons.
+ *
+ * These were pasted as raw class strings at every call site and had already
+ * drifted (one used `px-7` where the rest used `px-6`). Callers still compose
+ * their own children — the `Link` vs `a` split is real — but the styling has
+ * one definition.
+ */
+export function BillboardAction({
+  href,
+  variant = "primary",
+  external = false,
+  children,
+  className,
+}: {
+  href: string;
+  variant?: keyof typeof actionStyles;
+  external?: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
+  const classes = cn(
+    "inline-flex items-center gap-2 rounded py-3 text-base font-bold transition",
+    actionStyles[variant],
+    className,
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={classes}>
+        {children}
+      </a>
+    );
+  }
+
+  // mailto:/tel: are not routes, so they stay plain anchors.
+  if (href.startsWith("mailto:") || href.startsWith("tel:")) {
+    return (
+      <a href={href} className={classes}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={classes}>
+      {children}
+    </Link>
+  );
+}
 
 type BillboardProps = {
   eyebrow: string;
@@ -14,12 +71,24 @@ type BillboardProps = {
   /** Tailwind gradient classes for a per-item backdrop tint. */
   accent?: string;
   size?: "sm" | "md" | "lg";
+  /** Replaces the default gradient backdrop; rendered beneath the scrims. */
+  backdrop?: ReactNode;
+  /** Extra bottom padding, for pages whose rows overlap up into the billboard. */
+  contentClassName?: string;
 };
 
 const heights = {
   sm: "h-[58vh] min-h-[420px]",
   md: "h-[68vh] min-h-[480px]",
   lg: "h-[88vh] min-h-[560px]",
+};
+
+// The homepage billboard carries the brand, so its title outscales the
+// section billboards rather than sharing one size.
+const titleSizes = {
+  sm: "text-5xl sm:text-6xl",
+  md: "text-5xl sm:text-6xl",
+  lg: "text-6xl sm:text-7xl lg:text-8xl",
 };
 
 /**
@@ -42,10 +111,12 @@ export function Billboard({
   topSlot,
   accent,
   size = "md",
+  backdrop,
+  contentClassName,
 }: BillboardProps) {
   return (
     <section className={cn("relative -mt-20 w-full overflow-hidden", heights[size])}>
-      {accent ? (
+      {backdrop ?? (accent ? (
         // Accent gradients top out around 35% opacity, so they need two passes
         // and a lighter scrim to survive as colour rather than sludge.
         <>
@@ -54,7 +125,7 @@ export function Billboard({
         </>
       ) : (
         <div className="absolute inset-0 bg-[linear-gradient(155deg,#180406_0%,#080808_58%,#050505_100%)]" />
-      )}
+      ))}
 
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_28%,rgba(229,9,20,0.36),transparent_58%)]" />
       <div className="absolute inset-0 bg-cinematic-grid bg-[size:48px_48px] opacity-[0.08]" />
@@ -68,7 +139,7 @@ export function Billboard({
       />
       <div className="absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(180deg,transparent,rgba(5,5,5,0.9)_58%,#050505)]" />
 
-      <div className="relative flex h-full items-end pb-16">
+      <div className={cn("relative flex h-full items-end pb-16", contentClassName)}>
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           {topSlot}
 
@@ -81,7 +152,12 @@ export function Billboard({
             {eyebrow}
           </p>
 
-          <h1 className="mt-3 max-w-4xl text-5xl font-black leading-[0.9] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] sm:text-6xl">
+          <h1
+            className={cn(
+              "mt-3 max-w-4xl font-black leading-[0.9] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]",
+              titleSizes[size],
+            )}
+          >
             {title}
           </h1>
 

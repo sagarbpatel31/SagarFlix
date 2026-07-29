@@ -1,5 +1,5 @@
 import { projects } from "@/data/projects";
-import { TitleCardStatic } from "@/components/TitleCard";
+import { TitleCard } from "@/components/TitleCard";
 
 export default function PortfolioPage() {
   return (
@@ -19,7 +19,7 @@ export default function PortfolioPage() {
 
       <div className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {projects.map((project) => (
-          <TitleCardStatic key={project.slug} project={project} />
+          <TitleCard key={project.slug} project={project} expanded />
         ))}
       </div>
     </div>

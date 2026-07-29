@@ -1,29 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Children, useEffect, useRef, useState } from "react";
+import { Children, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-type ContentRowProps<T> = {
+type ContentRowProps = {
   title: string;
   description?: string;
   href?: string;
-  items?: T[];
-  renderItem?: (item: T, index: number) => ReactNode;
   children?: ReactNode;
 };
 
-export function ContentRow<T>({
-  title,
-  description,
-  href,
-  items,
-  renderItem,
-  children,
-}: ContentRowProps<T>) {
+export function ContentRow({ title, description, href, children }: ContentRowProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -47,7 +38,7 @@ export function ContentRow<T>({
       node.removeEventListener("scroll", updateScrollState);
       window.removeEventListener("resize", updateScrollState);
     };
-  }, [items?.length]);
+  }, [children]);
 
   const scrollByAmount = (direction: "left" | "right") => {
     const node = scrollerRef.current;
@@ -56,7 +47,9 @@ export function ContentRow<T>({
     node.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
   };
 
-  const rendered = items && renderItem ? items.map(renderItem) : Children.toArray(children);
+  // Memoised because Children.toArray re-clones every child, and hovering a
+  // tile updates row state on each pointer move.
+  const rendered = useMemo(() => Children.toArray(children), [children]);
 
   return (
     <section

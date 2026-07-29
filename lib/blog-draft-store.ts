@@ -1,27 +1,16 @@
 import type { BlogGenerationRequest, BlogGenerationResult } from "@/lib/blog-generator";
+import { readErrorMessage } from "@/lib/http";
 import {
   addSavedBlogDraft,
   clearSavedBlogDrafts,
   loadSavedBlogDrafts,
   removeSavedBlogDraft,
+  sortSavedBlogDrafts,
   updateSavedBlogDraft,
   type SavedBlogDraft,
 } from "@/lib/blog-drafts";
 
 const DRAFTS_ENDPOINT = "/api/blog/drafts";
-
-async function readErrorMessage(response: Response) {
-  try {
-    const body = (await response.json()) as { error?: unknown };
-    if (typeof body?.error === "string" && body.error.trim().length > 0) {
-      return body.error;
-    }
-  } catch {
-    // Fall through to the status-based message below.
-  }
-
-  return `Draft request failed (${response.status}).`;
-}
 
 /**
  * Draft persistence, resolved per session.
@@ -42,16 +31,7 @@ export type BlogDraftStore = {
   clear(): Promise<SavedBlogDraft[]>;
 };
 
-function sortDrafts(drafts: SavedBlogDraft[]) {
-  return [...drafts].sort((a, b) => {
-    if (a.pinned !== b.pinned) {
-      return a.pinned ? -1 : 1;
-    }
-    return b.updatedAt.localeCompare(a.updatedAt);
-  });
-}
-
-export function createLocalBlogDraftStore(): BlogDraftStore {
+function createLocalBlogDraftStore(): BlogDraftStore {
   return {
     isRemote: false,
     async list() {
@@ -84,7 +64,7 @@ export function createRemoteBlogDraftStore(fetchImpl: typeof fetch = fetch): Blo
       // Some failures are actionable — hitting the draft cap tells the user to
       // delete something — so the server's message is preferred when there is
       // one rather than collapsing everything into a status code.
-      throw new Error(await readErrorMessage(response));
+      throw new Error(await readErrorMessage(response, "Draft request failed"));
     }
 
     return response;
@@ -93,7 +73,7 @@ export function createRemoteBlogDraftStore(fetchImpl: typeof fetch = fetch): Blo
   async function list() {
     const response = await request("");
     const payload = (await response.json()) as SavedBlogDraft[];
-    return Array.isArray(payload) ? sortDrafts(payload) : [];
+    return Array.isArray(payload) ? sortSavedBlogDrafts(payload) : [];
   }
 
   async function mutate(path: string, init: RequestInit) {
@@ -131,7 +111,10 @@ export function createRemoteBlogDraftStore(fetchImpl: typeof fetch = fetch): Blo
       });
     },
     async clear() {
-      return mutate("", { method: "DELETE" });
+      // No re-read: the bulk delete is scoped to this user, so the next list is
+      // empty by construction.
+      await request("", { method: "DELETE" });
+      return [];
     },
   };
 }

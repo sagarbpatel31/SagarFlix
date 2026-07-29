@@ -114,8 +114,18 @@ describe("remote blog draft store", () => {
     expect(drafts).toEqual([]);
   });
 
-  it("throws when the API rejects the request", async () => {
-    fetchImpl.mockResolvedValue(jsonResponse({ error: "Unauthorized" }, 401));
+  it("surfaces the server's message so actionable errors reach the user", async () => {
+    fetchImpl.mockResolvedValue(
+      jsonResponse({ error: "Draft limit reached (200). Delete a saved draft to make room." }, 409),
+    );
+
+    await expect(
+      createRemoteBlogDraftStore(fetchImpl as unknown as typeof fetch).add(request, result),
+    ).rejects.toThrow("Draft limit reached (200).");
+  });
+
+  it("falls back to the status when the error body carries no message", async () => {
+    fetchImpl.mockResolvedValue(new Response("nope", { status: 401 }));
 
     await expect(
       createRemoteBlogDraftStore(fetchImpl as unknown as typeof fetch).list(),

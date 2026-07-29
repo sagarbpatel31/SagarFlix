@@ -18,8 +18,12 @@ const tones: BlogTone[] = ["Technical", "Reflective", "Direct", "Founder"];
 const formats: BlogFormat[] = ["Blog", "LinkedIn Post", "X Thread"];
 
 export function BlogGenerator() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const signedIn = Boolean(session?.user?.id);
+  // While the session is resolving, `useSession` reports signed-out. Acting on
+  // that would pick the local store, miss a remote draft id, and clear the
+  // selection before the authenticated store ever loads.
+  const sessionLoading = status === "loading";
   const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [topic, setTopic] = useState("Simulation-first robotics workflows");
   const [tone, setTone] = useState<BlogTone>("Technical");
@@ -38,6 +42,10 @@ export function BlogGenerator() {
   const [isFallback, setIsFallback] = useState(false);
 
   useEffect(() => {
+    if (sessionLoading) {
+      return;
+    }
+
     let cancelled = false;
 
     store
@@ -76,7 +84,7 @@ export function BlogGenerator() {
     return () => {
       cancelled = true;
     };
-  }, [store]);
+  }, [store, sessionLoading]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -106,8 +114,10 @@ export function BlogGenerator() {
     try {
       setSavedDrafts(await store.add(request, result));
       setFeedback(store.isRemote ? "Draft saved to your account." : "Draft saved locally.");
-    } catch {
-      setError("Unable to save the draft right now.");
+    } catch (cause) {
+      // The draft-cap message tells the user what to do about it, so it is
+      // shown rather than replaced with a generic failure.
+      setError(cause instanceof Error ? cause.message : "Unable to save the draft right now.");
     }
   };
 

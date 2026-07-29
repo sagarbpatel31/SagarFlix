@@ -10,6 +10,19 @@ import {
 
 const DRAFTS_ENDPOINT = "/api/blog/drafts";
 
+async function readErrorMessage(response: Response) {
+  try {
+    const body = (await response.json()) as { error?: unknown };
+    if (typeof body?.error === "string" && body.error.trim().length > 0) {
+      return body.error;
+    }
+  } catch {
+    // Fall through to the status-based message below.
+  }
+
+  return `Draft request failed (${response.status}).`;
+}
+
 /**
  * Draft persistence, resolved per session.
  *
@@ -68,7 +81,10 @@ export function createRemoteBlogDraftStore(fetchImpl: typeof fetch = fetch): Blo
     const response = await fetchImpl(`${DRAFTS_ENDPOINT}${path}`, init);
 
     if (!response.ok) {
-      throw new Error(`Draft request failed (${response.status}).`);
+      // Some failures are actionable — hitting the draft cap tells the user to
+      // delete something — so the server's message is preferred when there is
+      // one rather than collapsing everything into a status code.
+      throw new Error(await readErrorMessage(response));
     }
 
     return response;

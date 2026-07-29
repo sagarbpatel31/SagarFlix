@@ -5,6 +5,14 @@ import { blogDraftInputSchema } from "@/lib/blog-draft-input";
 import { deserializeBlogDraft, serializeBlogDraft } from "@/lib/blog-draft-records";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Cap on stored drafts per user.
+ *
+ * This is enforced on create, not just on read. Truncating only the read would
+ * leave drafts past the cap sitting in the database with no way to reach them —
+ * there is no pagination and no single-draft GET — so the write side has to
+ * refuse rather than let a draft be saved into a hole.
+ */
 const MAX_DRAFTS_PER_USER = 200;
 
 export async function GET() {
@@ -42,6 +50,20 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Invalid blog draft payload", issues: parsed.error.flatten() },
       { status: 400 },
+    );
+  }
+
+  // Refusing is preferable to silently evicting an older draft: the drafts are
+  // user-authored content, and deleting one to make room for another loses work
+  // the user never agreed to give up.
+  const stored = await prisma.blogDraft.count({ where: { userId: session.user.id } });
+
+  if (stored >= MAX_DRAFTS_PER_USER) {
+    return NextResponse.json(
+      {
+        error: `Draft limit reached (${MAX_DRAFTS_PER_USER}). Delete a saved draft to make room.`,
+      },
+      { status: 409 },
     );
   }
 

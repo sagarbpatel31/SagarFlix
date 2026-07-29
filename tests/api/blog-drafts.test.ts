@@ -5,6 +5,7 @@ const blogDraft = vi.hoisted(() => ({
   findMany: vi.fn(),
   findUnique: vi.fn(),
   create: vi.fn(),
+  count: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
   deleteMany: vi.fn(),
@@ -65,6 +66,7 @@ function signIn(userId = "user-1") {
 beforeEach(() => {
   vi.clearAllMocks();
   getServerSession.mockResolvedValue(null);
+  blogDraft.count.mockResolvedValue(0);
 });
 
 describe("blog draft routes require a session", () => {
@@ -124,6 +126,32 @@ describe("POST /api/blog/drafts", () => {
 
     expect(response.status).toBe(400);
     expect(blogDraft.create).not.toHaveBeenCalled();
+  });
+
+  // The list endpoint takes a fixed number of drafts and there is no pagination
+  // or single-draft GET, so anything stored past the cap would be unreachable.
+  it("refuses to store a draft past the cap rather than hiding it", async () => {
+    signIn();
+    blogDraft.count.mockResolvedValue(200);
+
+    const response = await POST(jsonRequest(validBody));
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining("Draft limit reached"),
+    });
+    expect(blogDraft.create).not.toHaveBeenCalled();
+  });
+
+  it("stores a draft when the user is below the cap", async () => {
+    signIn();
+    blogDraft.count.mockResolvedValue(199);
+    blogDraft.create.mockResolvedValue(record());
+
+    const response = await POST(jsonRequest(validBody));
+
+    expect(response.status).toBe(201);
+    expect(blogDraft.create).toHaveBeenCalled();
   });
 
   it("rejects a non-JSON body", async () => {

@@ -31,13 +31,20 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftDetail({ draftId }: { draftId: string }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const signedIn = Boolean(session?.user?.id);
+  // Resolving the session first stops a remote draft from rendering "not
+  // found" on the local store's empty first pass.
+  const sessionLoading = status === "loading";
   const store = useMemo(() => createBlogDraftStore({ signedIn }), [signedIn]);
   const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   useEffect(() => {
+    if (sessionLoading) {
+      return;
+    }
+
     let cancelled = false;
 
     store
@@ -56,7 +63,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [store]);
+  }, [store, sessionLoading]);
 
   const draft = useMemo(
     () => drafts.find((item) => item.id === draftId),

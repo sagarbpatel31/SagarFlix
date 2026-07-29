@@ -70,7 +70,7 @@ export function ContentRow<T>({
             <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">{title}</h2>
           </div>
           {description ? (
-            <p className="mt-1 pl-4 text-sm leading-6 text-white/45">{description}</p>
+            <p className="mt-1 pl-4 text-sm leading-6 text-white/55">{description}</p>
           ) : null}
         </div>
 

@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/components/AuthProvider";
+import { MotionProvider } from "@/components/MotionProvider";
 import { PageTransition } from "@/components/PageTransition";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -64,11 +65,13 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={cn(spaceGrotesk.variable, bebasNeue.variable)}>
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
+          <MotionProvider>
+            <Navbar />
+            <main className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+          </MotionProvider>
         </AuthProvider>
       </body>
     </html>

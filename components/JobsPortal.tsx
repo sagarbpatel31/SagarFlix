@@ -118,12 +118,12 @@ export function JobsPortal({ jobs, source }: { jobs: JobCompany[]; source: JobsS
     <>
       <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex w-full max-w-xl items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-3">
-          <Search className="h-4 w-4 text-white/45" />
+          <Search className="h-4 w-4 text-white/55" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search companies, roles, notes..."
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/35"
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/50"
           />
         </div>
 

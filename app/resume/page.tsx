@@ -88,7 +88,7 @@ export default function ResumePage() {
                 key={item.label}
                 className="rounded-lg border border-white/10 bg-panel/70 p-5 transition hover:border-netflix-red/35"
               >
-                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/40">
+                <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
                   <Icon className="h-3.5 w-3.5 text-netflix-red" />
                   {item.label}
                 </div>

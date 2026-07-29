@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({
                     key={item}
                     className="group flex gap-5 p-5 transition hover:bg-white/[0.04]"
                   >
-                    <span className="w-6 shrink-0 text-2xl font-black text-white/25 transition group-hover:text-netflix-red">
+                    <span className="w-6 shrink-0 text-2xl font-black text-white/45 transition group-hover:text-netflix-red">
                       {index + 1}
                     </span>
                     <p className="text-sm leading-7 text-white/70">{item}</p>
@@ -112,21 +112,21 @@ export default async function ProjectDetailPage({
 
           <aside className="space-y-6">
             <div>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/40">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
                 Stack
               </h3>
               <p className="mt-3 text-sm leading-7 text-white/70">{project.stack.join(", ")}</p>
             </div>
 
             <div>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/40">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
                 Tags
               </h3>
               <p className="mt-3 text-sm leading-7 text-white/70">{project.tags.join(", ")}</p>
             </div>
 
             <div>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/40">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
                 Metrics
               </h3>
               <ul className="mt-3 space-y-2">
@@ -141,7 +141,7 @@ export default async function ProjectDetailPage({
 
             {project.links.length > 0 ? (
               <div>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/40">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/60">
                   Links
                 </h3>
                 <div className="mt-3 space-y-2">

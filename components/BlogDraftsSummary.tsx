@@ -95,7 +95,7 @@ export function BlogDraftsSummary() {
           const Icon = stat.icon;
           return (
             <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-4">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/45">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
                 <Icon className="h-4 w-4 text-netflix-red" />
                 {stat.label}
               </div>

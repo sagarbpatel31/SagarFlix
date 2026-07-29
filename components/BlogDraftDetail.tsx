@@ -238,7 +238,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
           <p className="mt-3 text-sm leading-7 text-white/70">{draft.result.summary}</p>
 
           <div className="mt-6">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-white/45">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-white/55">
               Tags
             </h3>
             <div className="mt-3 flex flex-wrap gap-2">

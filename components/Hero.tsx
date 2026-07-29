@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight, Info, Play } from "lucide-react";
 
 const meta = ["Embedded Linux", "Robotics", "AI / ML", "Systems Engineering"];
@@ -15,6 +15,11 @@ const meta = ["Embedded Linux", "Robotics", "AI / ML", "Systems Engineering"];
  * billboard into the first row instead of ending on a hard edge.
  */
 export function Hero() {
+  // MotionConfig's "user" mode still allows opacity animations, and an
+  // infinite pulse is exactly the kind of thing reduced-motion users want
+  // stopped, so this one is opted out explicitly.
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="relative -mt-20 h-[88vh] min-h-[560px] w-full overflow-hidden">
       {/* Backdrop */}
@@ -22,8 +27,10 @@ export function Hero() {
       <div className="absolute inset-0 bg-cinematic-grid bg-[size:52px_52px] opacity-[0.08]" />
       <motion.div
         aria-hidden
-        animate={{ opacity: [0.55, 0.85, 0.55] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        animate={reduceMotion ? { opacity: 0.7 } : { opacity: [0.55, 0.85, 0.55] }}
+        transition={
+          reduceMotion ? { duration: 0 } : { duration: 9, repeat: Infinity, ease: "easeInOut" }
+        }
         className="absolute right-[8%] top-[22%] h-[26rem] w-[26rem] rounded-full bg-netflix-red/25 blur-[120px]"
       />
 

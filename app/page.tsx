@@ -85,7 +85,7 @@ export default function HomePage() {
                   <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
                     Blog Studio
                   </h2>
-                  <p className="mt-1 text-sm text-white/45">
+                  <p className="mt-1 text-sm text-white/55">
                     Draft ideas, pipeline status, and generator-ready entry points.
                   </p>
                 </div>

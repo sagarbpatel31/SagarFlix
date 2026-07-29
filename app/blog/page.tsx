@@ -60,7 +60,7 @@ export default function BlogPage() {
                 </div>
                 <h3 className="mt-3 text-lg font-bold text-white">{draft.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-white/55">{draft.excerpt}</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/45">
+                <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/55">
                   <span className="rounded border border-white/15 px-2 py-0.5">{draft.tone}</span>
                   <span className="rounded border border-white/15 px-2 py-0.5">
                     {draft.updatedAt}
@@ -76,7 +76,7 @@ export default function BlogPage() {
             <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
             <h2 className="text-2xl font-bold text-white">Idea Queue</h2>
           </div>
-          <p className="mt-2 pl-4 text-sm text-white/45">
+          <p className="mt-2 pl-4 text-sm text-white/55">
             A lightweight queue for future generator prompts.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2">

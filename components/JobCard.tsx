@@ -96,7 +96,7 @@ export function JobCard({
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-3">
-        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Notes</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-white/55">Notes</p>
         {isInteractive ? (
           <textarea
             value={notes}
@@ -113,7 +113,7 @@ export function JobCard({
       {isInteractive ? (
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/45">
+            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/55">
               Status
               <select
                 value={status}
@@ -126,7 +126,7 @@ export function JobCard({
               </select>
             </label>
 
-            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/45">
+            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/55">
               Priority
               <select
                 value={priority}

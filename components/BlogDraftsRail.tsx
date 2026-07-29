@@ -144,7 +144,7 @@ export function BlogDraftsRail() {
                   >
                     {draft.result.title}
                   </Link>
-                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/45">
+                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/55">
                     {draft.request.tone} • {draft.request.format} •{" "}
                     {new Date(draft.createdAt).toLocaleDateString()}
                   </p>

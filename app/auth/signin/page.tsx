@@ -78,12 +78,12 @@ function SignInContent() {
             )}
           </div>
 
-          <p className="mt-6 text-center text-sm text-white/45">
+          <p className="mt-6 text-center text-sm text-white/55">
             By signing in, you agree to our Terms of Service and Privacy Policy.
           </p>
         </div>
 
-        <p className="mt-6 text-center text-sm text-white/35">
+        <p className="mt-6 text-center text-sm text-white/55">
           No account? The career OS works without signing in, but your job tracker
           data will only persist locally in this browser.
         </p>

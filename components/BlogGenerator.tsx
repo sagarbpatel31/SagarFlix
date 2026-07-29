@@ -277,14 +277,14 @@ export function BlogGenerator() {
 
           <div className="mt-5 space-y-4">
             <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-white/45">Summary</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-white/55">Summary</p>
               <p className="mt-2 text-sm leading-7 text-white/80">
                 {result?.summary ?? "Generate a draft to preview the summary here."}
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-white/45">Full content</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-white/55">Full content</p>
               <div className="mt-3 max-h-[340px] whitespace-pre-line overflow-auto rounded-xl border border-white/5 bg-black/30 p-4 text-sm leading-7 text-white/80">
                 {result?.fullContent ?? "The full generated draft will appear here."}
               </div>
@@ -292,7 +292,7 @@ export function BlogGenerator() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/45">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
                   <Tag className="h-4 w-4 text-netflix-red" />
                   Tags
                 </div>
@@ -310,7 +310,7 @@ export function BlogGenerator() {
 
               <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/45">Social post</p>
+                  <p className="text-xs uppercase tracking-[0.25em] text-white/55">Social post</p>
                   {result ? (
                     <button
                       type="button"
@@ -361,7 +361,7 @@ export function BlogGenerator() {
                       <h5 className="truncate text-base font-semibold text-white">
                         {draft.result.title}
                       </h5>
-                      <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/45">
+                      <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/55">
                         {draft.request.tone} • {draft.request.format} •{" "}
                         {new Date(draft.createdAt).toLocaleDateString()}
                       </p>

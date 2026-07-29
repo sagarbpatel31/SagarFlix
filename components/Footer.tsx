@@ -46,7 +46,7 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-white/45">Navigate</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-white/55">Navigate</p>
             <div className="mt-4 grid gap-2">
               {quickLinks.map((link) => (
                 <Link
@@ -62,7 +62,7 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-white/45">Live Surfaces</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-white/55">Live Surfaces</p>
             <div className="mt-4 grid gap-2">
               {liveLinks.map((link) => (
                 <a

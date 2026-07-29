@@ -55,7 +55,7 @@ export default function BlogDraftsPage() {
             <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
             <h2 className="text-2xl font-bold text-white">Prompt Queue</h2>
           </div>
-          <p className="mt-2 pl-4 text-sm text-white/45">
+          <p className="mt-2 pl-4 text-sm text-white/55">
             Ideas ready to feed straight into the generator.
           </p>
 

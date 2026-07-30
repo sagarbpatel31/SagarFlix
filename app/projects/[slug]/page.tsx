@@ -89,7 +89,7 @@ export default async function ProjectDetailPage({
                     key={item}
                     className="group flex gap-5 p-5 transition hover:bg-white/[0.04]"
                   >
-                    <span className="w-6 shrink-0 text-2xl font-black text-white/45 transition group-hover:text-netflix-red">
+                    <span className="w-6 shrink-0 text-2xl font-black text-white/45 transition group-hover:text-netflix-redSoft">
                       {index + 1}
                     </span>
                     <p className="text-sm leading-7 text-white/70">{item}</p>
@@ -121,7 +121,7 @@ export default async function ProjectDetailPage({
               <ul className="mt-3 space-y-2">
                 {project.metrics.map((metric) => (
                   <li key={metric} className="flex gap-2 text-sm leading-6 text-white/70">
-                    <Sparkles className="mt-1 h-3.5 w-3.5 shrink-0 text-netflix-red" />
+                    <Sparkles className="mt-1 h-3.5 w-3.5 shrink-0 text-netflix-redSoft" />
                     {metric}
                   </li>
                 ))}
@@ -140,7 +140,7 @@ export default async function ProjectDetailPage({
                       href={link.href}
                       target={link.external ? "_blank" : undefined}
                       rel={link.external ? "noreferrer" : undefined}
-                      className="flex items-center gap-2 text-sm text-white/70 transition hover:text-netflix-red"
+                      className="flex items-center gap-2 text-sm text-white/70 transition hover:text-netflix-redSoft"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                       {link.label}

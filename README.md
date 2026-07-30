@@ -56,6 +56,18 @@ npm run dev
 npm test
 ```
 
+Unit tests need no services. The database integration tests are skipped unless a
+throwaway Postgres is pointed at them, which is also the fastest way to confirm
+the committed migrations really do build the schema:
+
+```bash
+npm run db:migrate:deploy                     # against the scratch database
+TEST_DATABASE_URL=postgresql://... npx vitest run tests/integration
+```
+
+Accessibility is checked with axe-core against a running dev server rather than
+by eye; the suite currently reports zero violations across all 11 pages.
+
 CI mirrors the local validation flow and runs both commands on push and pull request:
 
 - `npm test`

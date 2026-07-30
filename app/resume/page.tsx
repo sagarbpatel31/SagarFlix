@@ -82,7 +82,7 @@ export default function ResumePage() {
                 className="rounded-lg border border-white/10 bg-panel/70 p-5 transition hover:border-netflix-red/35"
               >
                 <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
-                  <Icon className="h-3.5 w-3.5 text-netflix-red" />
+                  <Icon className="h-3.5 w-3.5 text-netflix-redSoft" />
                   {item.label}
                 </div>
                 <p className="mt-3 text-base font-semibold text-white">{item.value}</p>
@@ -139,7 +139,7 @@ export default function ResumePage() {
                   rel={external ? "noreferrer" : undefined}
                   className="group flex items-center gap-4 rounded-lg border border-white/10 bg-panel/70 p-5 transition hover:border-netflix-red/40 hover:bg-white/[0.04]"
                 >
-                  <span className="rounded-full bg-netflix-red/15 p-3 text-netflix-red">
+                  <span className="rounded-full bg-netflix-red/15 p-3 text-netflix-redSoft">
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">

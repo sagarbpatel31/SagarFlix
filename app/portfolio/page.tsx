@@ -5,7 +5,7 @@ export default function PortfolioPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <div className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-netflix-red">
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-netflix-redSoft">
           Portfolio
         </p>
         <h1 className="mt-4 text-4xl font-black leading-[0.95] text-white sm:text-6xl">

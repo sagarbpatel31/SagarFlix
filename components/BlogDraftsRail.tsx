@@ -58,7 +58,7 @@ export function BlogDraftsRail() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-white/55">
-            <Sparkles className="h-4 w-4 text-netflix-red" />
+            <Sparkles className="h-4 w-4 text-netflix-redSoft" />
             Saved Drafts
           </div>
           <h2 className="mt-3 text-2xl font-semibold text-white">
@@ -103,7 +103,7 @@ export function BlogDraftsRail() {
                 <div className="min-w-0">
                   <Link
                     href={`/blog/drafts/${draft.id}`}
-                    className="truncate text-base font-semibold text-white transition hover:text-netflix-red"
+                    className="truncate text-base font-semibold text-white transition hover:text-netflix-redSoft"
                   >
                     {draft.result.title}
                   </Link>

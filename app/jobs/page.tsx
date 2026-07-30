@@ -9,7 +9,7 @@ export default async function JobsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="max-w-3xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Jobs</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Jobs</p>
         <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl">
           Job application portal and saved company tracker.
         </h1>

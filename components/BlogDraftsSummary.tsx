@@ -51,7 +51,7 @@ export function BlogDraftsSummary() {
   return (
     <section className="rounded-3xl border border-white/10 bg-panel p-6">
       <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-white/55">
-        <Sparkles className="h-4 w-4 text-netflix-red" />
+        <Sparkles className="h-4 w-4 text-netflix-redSoft" />
         Draft Library
       </div>
       <h2 className="mt-3 text-2xl font-semibold text-white">
@@ -67,7 +67,7 @@ export function BlogDraftsSummary() {
           return (
             <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/5 p-4">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
-                <Icon className="h-4 w-4 text-netflix-red" />
+                <Icon className="h-4 w-4 text-netflix-redSoft" />
                 {stat.label}
               </div>
               <p className="mt-3 text-xl font-bold text-white">{stat.value}</p>

@@ -60,7 +60,7 @@ export default function BlogDraftsPage() {
                 href="/blog/generate"
                 className="group flex items-start gap-3 rounded-lg border border-white/10 bg-panel/70 px-5 py-4 text-sm leading-6 text-white/70 transition hover:border-netflix-red/40 hover:text-white"
               >
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-netflix-red/70 transition group-hover:text-netflix-red" />
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-netflix-red/70 transition group-hover:text-netflix-redSoft" />
                 {idea}
               </Link>
             ))}

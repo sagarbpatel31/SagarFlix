@@ -139,7 +139,7 @@ export function BlogGenerator() {
         className="rounded-3xl border border-white/10 bg-panel p-6 shadow-[0_20px_50px_rgba(0,0,0,0.28)]"
       >
         <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-white/55">
-          <WandSparkles className="h-4 w-4 text-netflix-red" />
+          <WandSparkles className="h-4 w-4 text-netflix-redSoft" />
           Blog Generator UI
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/65">
@@ -249,7 +249,7 @@ export function BlogGenerator() {
         </div>
 
         <div className="mt-5 rounded-3xl border border-white/10 bg-panel2 p-5">
-          <p className="text-sm uppercase tracking-[0.25em] text-netflix-red">
+          <p className="text-sm uppercase tracking-[0.25em] text-netflix-redSoft">
             {format}
           </p>
           <h4 className="mt-3 text-2xl font-bold text-white">
@@ -277,7 +277,7 @@ export function BlogGenerator() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
-                  <Tag className="h-4 w-4 text-netflix-red" />
+                  <Tag className="h-4 w-4 text-netflix-redSoft" />
                   Tags
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">

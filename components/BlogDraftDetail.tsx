@@ -111,7 +111,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
   if (!draft) {
     return (
       <section className="rounded-3xl border border-white/10 bg-black/50 p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Draft</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Blog Draft</p>
         <h1 className="mt-4 text-3xl font-black text-white">
           {error ? "Unable to load this draft" : "Draft not found"}
         </h1>
@@ -142,7 +142,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Draft</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Blog Draft</p>
           <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl">
             {draft.result.title}
           </h1>

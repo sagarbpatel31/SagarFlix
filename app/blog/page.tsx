@@ -45,7 +45,7 @@ export default function BlogPage() {
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-netflix-red/60 to-transparent opacity-0 transition group-hover:opacity-100" />
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-netflix-red">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-netflix-redSoft">
                     {draft.format}
                   </p>
                   <span className="rounded border border-white/15 px-2 py-0.5 text-[11px] text-white/55">
@@ -80,7 +80,7 @@ export default function BlogPage() {
                 href="/blog/generate"
                 className="group flex items-start gap-3 rounded-lg border border-white/10 bg-panel/70 px-5 py-4 text-sm leading-6 text-white/70 transition hover:border-netflix-red/40 hover:text-white"
               >
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-netflix-red/70 transition group-hover:text-netflix-red" />
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-netflix-red/70 transition group-hover:text-netflix-redSoft" />
                 {idea}
               </Link>
             ))}

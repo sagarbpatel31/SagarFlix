@@ -63,7 +63,7 @@ export default function SagarOsPage() {
                   key={module.title}
                   className="group rounded-lg border border-white/10 bg-panel/70 p-6 transition hover:border-netflix-red/35"
                 >
-                  <Icon className="h-5 w-5 text-netflix-red" />
+                  <Icon className="h-5 w-5 text-netflix-redSoft" />
                   <h3 className="mt-4 text-lg font-bold text-white">{module.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-white/60">{module.body}</p>
                 </div>

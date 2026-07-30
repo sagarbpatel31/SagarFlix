@@ -107,7 +107,7 @@ export default function HomePage() {
                   className="group relative overflow-hidden rounded-lg border border-white/10 bg-panel p-5 transition hover:border-netflix-red/40"
                 >
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-netflix-red/60 to-transparent opacity-0 transition group-hover:opacity-100" />
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-netflix-red">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-netflix-redSoft">
                     {draft.format}
                   </p>
                   <h3 className="mt-3 text-lg font-bold text-white">{draft.title}</h3>

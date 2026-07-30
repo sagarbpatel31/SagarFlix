@@ -16,14 +16,6 @@ type ProviderName = "mock" | "openai";
  * `requestBlogDraft` in `@/lib/blog-generator-client` instead.
  */
 
-export function getBlogGeneratorProvider(name?: string): BlogGeneratorProvider {
-  return resolveBlogGeneratorProvider(name).provider;
-}
-
-export function getBlogGeneratorProviderName(name?: string): ProviderName {
-  return resolveBlogGeneratorProvider(name).name;
-}
-
 export function resolveBlogGeneratorProvider(name?: string): {
   name: ProviderName;
   provider: BlogGeneratorProvider;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Play, Sparkles, WandSparkles } from "lucide-react";
 import { Billboard, BillboardAction } from "@/components/Billboard";
+import { BlogDraftMigrationNotice } from "@/components/BlogDraftMigrationNotice";
 import { BlogDraftsSummary } from "@/components/BlogDraftsSummary";
 import { BlogDraftsRail } from "@/components/BlogDraftsRail";
 import { blogIdeas } from "@/data/blogs";
@@ -41,6 +42,7 @@ export default function BlogDraftsPage() {
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-10 px-4 sm:px-6 lg:px-8">
+        <BlogDraftMigrationNotice />
         <BlogDraftsSummary />
         <BlogDraftsRail />
 

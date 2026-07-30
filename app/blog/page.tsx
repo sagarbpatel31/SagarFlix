@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Play, Sparkles } from "lucide-react";
 import { blogDrafts, blogIdeas } from "@/data/blogs";
 import { Billboard, BillboardAction } from "@/components/Billboard";
+import { BlogDraftMigrationNotice } from "@/components/BlogDraftMigrationNotice";
 import { BlogDraftsRail } from "@/components/BlogDraftsRail";
 
 export default function BlogPage() {
@@ -30,6 +31,7 @@ export default function BlogPage() {
       </Billboard>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8">
+        <BlogDraftMigrationNotice />
         <BlogDraftsRail />
 
         <section>

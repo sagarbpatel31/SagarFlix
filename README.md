@@ -201,6 +201,13 @@ Where drafts live depends on the session, and `lib/blog-draft-store.ts` picks th
 Both backends expose the same interface and resolve to the full next list after each
 mutation, so the UI components do not branch on which one is active.
 
+Drafts written before signing in are not stranded. When a signed-in visitor still has
+browser-stored drafts, the blog pages offer to move them into the account. It is opt-in
+rather than automatic — silently copying someone's content into an account the moment
+they authenticate is surprising — and each draft is only removed from the browser once
+the server has accepted it, so a failure part-way through (for example hitting the draft
+cap) leaves the rest untouched and the operation safe to retry.
+
 ## Database Schema
 
 Migrations are committed under `prisma/migrations`, which is what makes
@@ -294,4 +301,3 @@ When you enable GitHub or Google sign-in, configure the callback URLs to match y
 - Add analytics/error tracking (Sentry, Vercel Analytics)
 - Implement resume page with PDF generation
 - Add project detail pages with case studies
-- Migrate a visitor's local drafts into their account on first sign-in

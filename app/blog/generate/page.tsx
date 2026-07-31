@@ -10,7 +10,7 @@ export default function BlogGeneratePage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-netflix-red/80 to-transparent" />
 
         <div className="relative max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Studio</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Blog Studio</p>
           <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl lg:text-6xl">
             Generate drafts from a topic, tone, and format.
           </h1>

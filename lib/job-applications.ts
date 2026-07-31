@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { JobStatus as DbJobStatus } from "@prisma/client";
 import type { JobCompany, JobPriority, JobStatus } from "@/data/jobs";
+import { parseList } from "@/lib/list-serialization";
 
 export type JobApplicationRecord = {
   id: string;
@@ -26,22 +27,6 @@ function toDbStatus(status: JobStatus) {
 
 function fromDbStatus(status: string): JobStatus {
   return status === "Follow_up" ? "Follow-up" : (status as JobStatus);
-}
-
-function parseList(value: string) {
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (Array.isArray(parsed)) {
-      return parsed.filter((item): item is string => typeof item === "string");
-    }
-  } catch {
-    // fall through to comma-separated parsing
-  }
-
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 export function serializeJobApplication(

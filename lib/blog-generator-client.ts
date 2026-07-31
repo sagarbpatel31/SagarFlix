@@ -1,4 +1,5 @@
 import type { BlogGenerationRequest, BlogGenerationResult } from "@/lib/blog-generator";
+import { readErrorMessage } from "@/lib/http";
 
 export type BlogGenerationResponse = {
   result: BlogGenerationResult;
@@ -21,19 +22,6 @@ function isBlogGenerationResponse(value: unknown): value is BlogGenerationRespon
   );
 }
 
-async function readErrorMessage(response: Response) {
-  try {
-    const body = (await response.json()) as { error?: unknown };
-    if (typeof body?.error === "string" && body.error.trim().length > 0) {
-      return body.error;
-    }
-  } catch {
-    // Fall through to the generic message below.
-  }
-
-  return `Blog generation failed (${response.status}).`;
-}
-
 /**
  * Requests a draft from the server-side generator.
  *
@@ -51,7 +39,7 @@ export async function requestBlogDraft(
   });
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+    throw new Error(await readErrorMessage(response, "Blog generation failed"));
   }
 
   const payload: unknown = await response.json();

@@ -1,40 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Download, Trash2, Copy, Sparkles, Pin, Archive, ArchiveRestore } from "lucide-react";
 import { motion } from "framer-motion";
-import {
-  clearSavedBlogDrafts,
-  setSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
-  toggleArchivedBlogDraft,
-  togglePinnedBlogDraft,
-  type SavedBlogDraft,
-} from "@/lib/blog-drafts";
+import { setSelectedBlogDraftId, type SavedBlogDraft } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
 
 export function BlogDraftsRail() {
-  const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
+  const { store, drafts, setDrafts, error } = useBlogDraftStore();
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  useEffect(() => {
-    setDrafts(loadSavedBlogDrafts());
-  }, []);
-
-  const sortedDrafts = useMemo(() => {
-    return [...drafts].sort((a, b) => {
-      if (a.pinned !== b.pinned) {
-        return a.pinned ? -1 : 1;
+  const runMutation = useCallback(
+    async (mutate: () => Promise<SavedBlogDraft[]>, message: string, failure: string) => {
+      try {
+        setDrafts(await mutate());
+        setFeedback(message);
+      } catch {
+        setFeedback(failure);
       }
-      if (a.archived !== b.archived) {
-        return a.archived ? 1 : -1;
-      }
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-  }, [drafts]);
-
-  const refreshDrafts = () => setDrafts(loadSavedBlogDrafts());
+    },
+    [],
+  );
 
   const handleCopy = async (value: string, label: string) => {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
@@ -46,40 +33,41 @@ export function BlogDraftsRail() {
     setFeedback(`${label} copied.`);
   };
 
-  const handleDelete = (id: string) => {
-    setDrafts(removeSavedBlogDraft(id));
-    setFeedback("Draft deleted.");
-  };
+  const handleDelete = (id: string) =>
+    runMutation(() => store.remove(id), "Draft deleted.", "Unable to delete the draft.");
 
-  const handleTogglePinned = (id: string) => {
-    setDrafts(togglePinnedBlogDraft(id));
-    setFeedback("Draft pin updated.");
-  };
+  const handleTogglePinned = (draft: SavedBlogDraft) =>
+    runMutation(
+      () => store.setPinned(draft.id, !draft.pinned),
+      "Draft pin updated.",
+      "Unable to update the draft pin.",
+    );
 
-  const handleToggleArchived = (id: string) => {
-    setDrafts(toggleArchivedBlogDraft(id));
-    setFeedback("Draft archive status updated.");
-  };
+  const handleToggleArchived = (draft: SavedBlogDraft) =>
+    runMutation(
+      () => store.setArchived(draft.id, !draft.archived),
+      "Draft archive status updated.",
+      "Unable to update the draft archive status.",
+    );
 
-  const handleClearAll = () => {
-    clearSavedBlogDrafts();
-    refreshDrafts();
-    setFeedback("All saved drafts cleared.");
-  };
+  const handleClearAll = () =>
+    runMutation(() => store.clear(), "All saved drafts cleared.", "Unable to clear saved drafts.");
 
   return (
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-white/55">
-            <Sparkles className="h-4 w-4 text-netflix-red" />
+            <Sparkles className="h-4 w-4 text-netflix-redSoft" />
             Saved Drafts
           </div>
           <h2 className="mt-3 text-2xl font-semibold text-white">
             Drafts you can bring back later
           </h2>
           <p className="mt-2 text-sm text-white/55">
-            These are stored locally in your browser. No backend required yet.
+            {store.isRemote
+              ? "Saved to your account, so these drafts follow you across devices."
+              : "Stored locally in your browser. Sign in to keep drafts across devices."}
           </p>
         </div>
 
@@ -94,15 +82,15 @@ export function BlogDraftsRail() {
         </button>
       </div>
 
-      {feedback ? (
+      {error || feedback ? (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
-          {feedback}
+          {error ?? feedback}
         </div>
       ) : null}
 
       <div className="mt-5 space-y-3">
-        {sortedDrafts.length > 0 ? (
-          sortedDrafts.map((draft) => (
+        {drafts.length > 0 ? (
+          drafts.map((draft) => (
             <motion.article
               key={draft.id}
               initial={{ opacity: 0, y: 10 }}
@@ -115,11 +103,11 @@ export function BlogDraftsRail() {
                 <div className="min-w-0">
                   <Link
                     href={`/blog/drafts/${draft.id}`}
-                    className="truncate text-base font-semibold text-white transition hover:text-netflix-red"
+                    className="truncate text-base font-semibold text-white transition hover:text-netflix-redSoft"
                   >
                     {draft.result.title}
                   </Link>
-                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/45">
+                  <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/55">
                     {draft.request.tone} • {draft.request.format} •{" "}
                     {new Date(draft.createdAt).toLocaleDateString()}
                   </p>
@@ -165,7 +153,7 @@ export function BlogDraftsRail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleTogglePinned(draft.id)}
+                    onClick={() => handleTogglePinned(draft)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75"
                   >
                     <Pin className="h-4 w-4" />
@@ -173,7 +161,7 @@ export function BlogDraftsRail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleToggleArchived(draft.id)}
+                    onClick={() => handleToggleArchived(draft)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75"
                   >
                     {draft.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}

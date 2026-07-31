@@ -10,7 +10,7 @@ export default function NotFound() {
 
         <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-netflix-red">
+            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-netflix-redSoft">
               <SearchX className="h-4 w-4" />
               Page not found
             </div>

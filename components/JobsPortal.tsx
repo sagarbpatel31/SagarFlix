@@ -118,17 +118,17 @@ export function JobsPortal({ jobs, source }: { jobs: JobCompany[]; source: JobsS
     <>
       <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex w-full max-w-xl items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-3">
-          <Search className="h-4 w-4 text-white/45" />
+          <Search className="h-4 w-4 text-white/55" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search companies, roles, notes..."
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/35"
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/50"
           />
         </div>
 
         <div className="flex items-center gap-2 text-sm text-white/55">
-          <Sparkles className="h-4 w-4 text-netflix-red" />
+          <Sparkles className="h-4 w-4 text-netflix-redSoft" />
           {source === "sheet"
             ? "Live data imported from Google Sheets CSV"
             : "Local fallback data in use"}
@@ -159,7 +159,7 @@ export function JobsPortal({ jobs, source }: { jobs: JobCompany[]; source: JobsS
         <div className="mt-4 rounded-3xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
           {isLoading ? (
             <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-netflix-red" />
+              <Loader2 className="h-4 w-4 animate-spin text-netflix-redSoft" />
               Loading your tracked jobs...
             </span>
           ) : loadError ? (
@@ -184,7 +184,7 @@ export function JobsPortal({ jobs, source }: { jobs: JobCompany[]; source: JobsS
           Sign in to save jobs to your database-backed tracker.
           <Link
             href="/auth/signin?callbackUrl=/jobs"
-            className="ml-2 inline-flex items-center gap-1 text-netflix-red transition hover:opacity-80"
+            className="ml-2 inline-flex items-center gap-1 text-netflix-redSoft transition hover:opacity-80"
           >
             Sign in
           </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Archive,
@@ -12,15 +12,9 @@ import {
   Trash2,
   Sparkles,
 } from "lucide-react";
-import {
-  clearSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
-  toggleArchivedBlogDraft,
-  togglePinnedBlogDraft,
-  setSelectedBlogDraftId,
-  type SavedBlogDraft,
-} from "@/lib/blog-drafts";
+import { clearSelectedBlogDraftId, setSelectedBlogDraftId } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
+import { Skeleton } from "@/components/Skeleton";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString(undefined, {
@@ -33,12 +27,8 @@ function formatDate(value: string) {
 }
 
 export function BlogDraftDetail({ draftId }: { draftId: string }) {
-  const [drafts, setDrafts] = useState<SavedBlogDraft[]>([]);
+  const { store, drafts, setDrafts, ready, error } = useBlogDraftStore();
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  useEffect(() => {
-    setDrafts(loadSavedBlogDrafts());
-  }, []);
 
   const draft = useMemo(
     () => drafts.find((item) => item.id === draftId),
@@ -64,40 +54,67 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     window.location.href = "/blog/generate";
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!draft) {
       return;
     }
 
-    const nextDrafts = removeSavedBlogDraft(draft.id);
-    setDrafts(nextDrafts);
-    clearSelectedBlogDraftId();
-    setFeedback("Draft deleted.");
+    try {
+      setDrafts(await store.remove(draft.id));
+      clearSelectedBlogDraftId();
+      setFeedback("Draft deleted.");
+    } catch {
+      setFeedback("Unable to delete the draft.");
+    }
   };
 
-  const handleTogglePinned = () => {
+  const handleTogglePinned = async () => {
     if (!draft) {
       return;
     }
 
-    setDrafts(togglePinnedBlogDraft(draft.id));
-    setFeedback(draft.pinned ? "Draft unpinned." : "Draft pinned.");
+    try {
+      setDrafts(await store.setPinned(draft.id, !draft.pinned));
+      setFeedback(draft.pinned ? "Draft unpinned." : "Draft pinned.");
+    } catch {
+      setFeedback("Unable to update the draft pin.");
+    }
   };
 
-  const handleToggleArchived = () => {
+  const handleToggleArchived = async () => {
     if (!draft) {
       return;
     }
 
-    setDrafts(toggleArchivedBlogDraft(draft.id));
-    setFeedback(draft.archived ? "Draft unarchived." : "Draft archived.");
+    try {
+      setDrafts(await store.setArchived(draft.id, !draft.archived));
+      setFeedback(draft.archived ? "Draft unarchived." : "Draft archived.");
+    } catch {
+      setFeedback("Unable to update the draft archive status.");
+    }
   };
+
+  // "Not found" is only true once the right store has actually reported. Before
+  // that the list is legitimately empty, and rendering the miss would flash the
+  // wrong answer at every signed-in visitor.
+  if (!ready) {
+    return (
+      <section className="rounded-3xl border border-white/10 bg-black/50 p-8">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="mt-5 h-10 w-2/3" />
+        <Skeleton className="mt-4 h-4 w-full" />
+        <Skeleton className="mt-2 h-4 w-5/6" />
+      </section>
+    );
+  }
 
   if (!draft) {
     return (
       <section className="rounded-3xl border border-white/10 bg-black/50 p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Draft</p>
-        <h1 className="mt-4 text-3xl font-black text-white">Draft not found</h1>
+        <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Blog Draft</p>
+        <h1 className="mt-4 text-3xl font-black text-white">
+          {error ? "Unable to load this draft" : "Draft not found"}
+        </h1>
         <p className="mt-4 text-base leading-7 text-white/65">
           This draft is not saved in the current browser. Go back to the library or generate a new draft.
         </p>
@@ -125,7 +142,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-netflix-red">Blog Draft</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-netflix-redSoft">Blog Draft</p>
           <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl">
             {draft.result.title}
           </h1>
@@ -209,7 +226,7 @@ export function BlogDraftDetail({ draftId }: { draftId: string }) {
           <p className="mt-3 text-sm leading-7 text-white/70">{draft.result.summary}</p>
 
           <div className="mt-6">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-white/45">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.25em] text-white/55">
               Tags
             </h3>
             <div className="mt-3 flex flex-wrap gap-2">

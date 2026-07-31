@@ -1,4 +1,5 @@
 import type { BlogGenerationRequest, BlogGenerationResult } from "@/lib/blog-generator";
+import { MAX_LOCAL_DRAFTS, draftLimitMessage } from "@/lib/blog-draft-limits";
 
 const STORAGE_KEY = "sagarflix.blog-drafts.v1";
 const SELECTED_STORAGE_KEY = "sagarflix.blog-drafts.selected.v1";
@@ -74,8 +75,25 @@ function writeRawDrafts(drafts: SavedBlogDraft[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
 }
 
+/**
+ * The one ordering for saved drafts: pinned first, then unarchived, then most
+ * recently updated. Both stores sort through this so the rail, the dashboard
+ * summary, and the API list can never disagree about what comes first.
+ */
+export function sortSavedBlogDrafts(drafts: SavedBlogDraft[]) {
+  return [...drafts].sort((a, b) => {
+    if (a.pinned !== b.pinned) {
+      return a.pinned ? -1 : 1;
+    }
+    if (a.archived !== b.archived) {
+      return a.archived ? 1 : -1;
+    }
+    return b.updatedAt.localeCompare(a.updatedAt);
+  });
+}
+
 export function loadSavedBlogDrafts() {
-  return readRawDrafts();
+  return sortSavedBlogDrafts(readRawDrafts());
 }
 
 export function addSavedBlogDraft(
@@ -95,13 +113,22 @@ export function addSavedBlogDraft(
     result,
   };
 
-  const nextDrafts = [draft, ...readRawDrafts()].slice(0, 20);
+  const existing = readRawDrafts();
+
+  // Refuse rather than evict. The old `.slice(0, 20)` silently discarded the
+  // oldest draft on every save past the cap, which is the same silent data loss
+  // the API path deliberately avoids.
+  if (existing.length >= MAX_LOCAL_DRAFTS) {
+    throw new Error(draftLimitMessage(MAX_LOCAL_DRAFTS));
+  }
+
+  const nextDrafts = sortSavedBlogDrafts([draft, ...existing]);
   writeRawDrafts(nextDrafts);
   return nextDrafts;
 }
 
 export function removeSavedBlogDraft(id: string) {
-  const nextDrafts = readRawDrafts().filter((draft) => draft.id !== id);
+  const nextDrafts = sortSavedBlogDrafts(readRawDrafts().filter((draft) => draft.id !== id));
   writeRawDrafts(nextDrafts);
   return nextDrafts;
 }
@@ -110,44 +137,16 @@ export function updateSavedBlogDraft(
   id: string,
   patch: Partial<Pick<SavedBlogDraft, "pinned" | "archived" | "request" | "result">>,
 ) {
-  const nextDrafts = readRawDrafts().map((draft) =>
-    draft.id === id
-      ? {
-          ...draft,
-          ...patch,
-          updatedAt: new Date().toISOString(),
-        }
-      : draft,
-  );
-  writeRawDrafts(nextDrafts);
-  return nextDrafts;
-}
-
-export function togglePinnedBlogDraft(id: string) {
-  const drafts = readRawDrafts();
-  const nextDrafts = drafts.map((draft) =>
-    draft.id === id
-      ? {
-          ...draft,
-          pinned: !draft.pinned,
-          updatedAt: new Date().toISOString(),
-        }
-      : draft,
-  );
-  writeRawDrafts(nextDrafts);
-  return nextDrafts;
-}
-
-export function toggleArchivedBlogDraft(id: string) {
-  const drafts = readRawDrafts();
-  const nextDrafts = drafts.map((draft) =>
-    draft.id === id
-      ? {
-          ...draft,
-          archived: !draft.archived,
-          updatedAt: new Date().toISOString(),
-        }
-      : draft,
+  const nextDrafts = sortSavedBlogDrafts(
+    readRawDrafts().map((draft) =>
+      draft.id === id
+        ? {
+            ...draft,
+            ...patch,
+            updatedAt: new Date().toISOString(),
+          }
+        : draft,
+    ),
   );
   writeRawDrafts(nextDrafts);
   return nextDrafts;

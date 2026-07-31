@@ -8,5 +8,3 @@ export const blogGenerationInputSchema = z.object({
   tone: z.enum(blogToneValues),
   format: z.enum(blogFormatValues),
 });
-
-export type BlogGenerationInput = z.infer<typeof blogGenerationInputSchema>;

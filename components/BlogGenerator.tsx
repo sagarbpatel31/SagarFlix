@@ -7,24 +7,22 @@ import type { BlogFormat, BlogTone } from "@/data/blogs";
 import type { BlogGenerationResult } from "@/lib/blog-generator";
 import { requestBlogDraft } from "@/lib/blog-generator-client";
 import {
-  addSavedBlogDraft,
-  clearSavedBlogDrafts,
   clearSelectedBlogDraftId,
   getSelectedBlogDraftId,
-  loadSavedBlogDrafts,
-  removeSavedBlogDraft,
   type SavedBlogDraft,
 } from "@/lib/blog-drafts";
+import { useBlogDraftStore } from "@/lib/use-blog-draft-store";
 
 const tones: BlogTone[] = ["Technical", "Reflective", "Direct", "Founder"];
 const formats: BlogFormat[] = ["Blog", "LinkedIn Post", "X Thread"];
 
 export function BlogGenerator() {
+  const { store, drafts: savedDrafts, setDrafts: setSavedDrafts, ready, error: loadError } =
+    useBlogDraftStore();
   const [topic, setTopic] = useState("Simulation-first robotics workflows");
   const [tone, setTone] = useState<BlogTone>("Technical");
   const [format, setFormat] = useState<BlogFormat>("Blog");
   const [result, setResult] = useState<BlogGenerationResult | null>(null);
-  const [savedDrafts, setSavedDrafts] = useState<SavedBlogDraft[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -36,16 +34,19 @@ export function BlogGenerator() {
   const [providerName, setProviderName] = useState<"mock" | "openai">(configuredProviderName);
   const [isFallback, setIsFallback] = useState(false);
 
+  // Runs once the correct store has loaded, so a draft id written by the rail
+  // is resolved against the list it actually belongs to.
   useEffect(() => {
-    const drafts = loadSavedBlogDrafts();
-    setSavedDrafts(drafts);
+    if (!ready) {
+      return;
+    }
 
     const selectedId = getSelectedBlogDraftId();
     if (!selectedId) {
       return;
     }
 
-    const selectedDraft = drafts.find((draft) => draft.id === selectedId);
+    const selectedDraft = savedDrafts.find((draft) => draft.id === selectedId);
     if (!selectedDraft) {
       clearSelectedBlogDraftId();
       return;
@@ -57,7 +58,7 @@ export function BlogGenerator() {
     setResult(selectedDraft.result);
     setFeedback(`Loaded "${selectedDraft.result.title}" from the blog dashboard.`);
     clearSelectedBlogDraftId();
-  }, []);
+  }, [ready, savedDrafts]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -76,16 +77,22 @@ export function BlogGenerator() {
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!result) {
       setFeedback("Generate a draft before saving it.");
       return;
     }
 
     const request = { topic: topic.trim() || "Untitled topic", tone, format };
-    const nextDrafts = addSavedBlogDraft(request, result);
-    setSavedDrafts(nextDrafts);
-    setFeedback("Draft saved locally.");
+
+    try {
+      setSavedDrafts(await store.add(request, result));
+      setFeedback(store.isRemote ? "Draft saved to your account." : "Draft saved locally.");
+    } catch (cause) {
+      // The draft-cap message tells the user what to do about it, so it is
+      // shown rather than replaced with a generic failure.
+      setError(cause instanceof Error ? cause.message : "Unable to save the draft right now.");
+    }
   };
 
   const handleLoadDraft = (draft: SavedBlogDraft) => {
@@ -96,10 +103,13 @@ export function BlogGenerator() {
     setFeedback(`Loaded "${draft.result.title}".`);
   };
 
-  const handleDeleteDraft = (id: string) => {
-    const nextDrafts = removeSavedBlogDraft(id);
-    setSavedDrafts(nextDrafts);
-    setFeedback("Draft removed.");
+  const handleDeleteDraft = async (id: string) => {
+    try {
+      setSavedDrafts(await store.remove(id));
+      setFeedback("Draft removed.");
+    } catch {
+      setError("Unable to remove the draft right now.");
+    }
   };
 
   const handleCopy = async (value: string, label: string) => {
@@ -112,10 +122,13 @@ export function BlogGenerator() {
     setFeedback(`${label} copied.`);
   };
 
-  const handleClearAll = () => {
-    clearSavedBlogDrafts();
-    setSavedDrafts([]);
-    setFeedback("All saved drafts cleared.");
+  const handleClearAll = async () => {
+    try {
+      setSavedDrafts(await store.clear());
+      setFeedback("All saved drafts cleared.");
+    } catch {
+      setError("Unable to clear saved drafts right now.");
+    }
   };
 
   return (
@@ -126,7 +139,7 @@ export function BlogGenerator() {
         className="rounded-3xl border border-white/10 bg-panel p-6 shadow-[0_20px_50px_rgba(0,0,0,0.28)]"
       >
         <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-white/55">
-          <WandSparkles className="h-4 w-4 text-netflix-red" />
+          <WandSparkles className="h-4 w-4 text-netflix-redSoft" />
           Blog Generator UI
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/65">
@@ -147,9 +160,9 @@ export function BlogGenerator() {
         </p>
 
         <div className="mt-6 grid gap-4">
-          {error ? (
+          {error || loadError ? (
             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
-              {error}
+              {error ?? loadError}
             </div>
           ) : null}
           {feedback ? (
@@ -236,7 +249,7 @@ export function BlogGenerator() {
         </div>
 
         <div className="mt-5 rounded-3xl border border-white/10 bg-panel2 p-5">
-          <p className="text-sm uppercase tracking-[0.25em] text-netflix-red">
+          <p className="text-sm uppercase tracking-[0.25em] text-netflix-redSoft">
             {format}
           </p>
           <h4 className="mt-3 text-2xl font-bold text-white">
@@ -248,14 +261,14 @@ export function BlogGenerator() {
 
           <div className="mt-5 space-y-4">
             <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-white/45">Summary</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-white/55">Summary</p>
               <p className="mt-2 text-sm leading-7 text-white/80">
                 {result?.summary ?? "Generate a draft to preview the summary here."}
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-white/45">Full content</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-white/55">Full content</p>
               <div className="mt-3 max-h-[340px] whitespace-pre-line overflow-auto rounded-xl border border-white/5 bg-black/30 p-4 text-sm leading-7 text-white/80">
                 {result?.fullContent ?? "The full generated draft will appear here."}
               </div>
@@ -263,8 +276,8 @@ export function BlogGenerator() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/45">
-                  <Tag className="h-4 w-4 text-netflix-red" />
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
+                  <Tag className="h-4 w-4 text-netflix-redSoft" />
                   Tags
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -281,7 +294,7 @@ export function BlogGenerator() {
 
               <div className="rounded-2xl border border-white/8 bg-black/40 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/45">Social post</p>
+                  <p className="text-xs uppercase tracking-[0.25em] text-white/55">Social post</p>
                   {result ? (
                     <button
                       type="button"
@@ -332,7 +345,7 @@ export function BlogGenerator() {
                       <h5 className="truncate text-base font-semibold text-white">
                         {draft.result.title}
                       </h5>
-                      <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/45">
+                      <p className="mt-1 text-xs uppercase tracking-[0.22em] text-white/55">
                         {draft.request.tone} • {draft.request.format} •{" "}
                         {new Date(draft.createdAt).toLocaleDateString()}
                       </p>

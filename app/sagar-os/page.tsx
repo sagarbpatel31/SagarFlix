@@ -1,91 +1,100 @@
-import Link from "next/link";
-import { ArrowRight, Layers3, Radar, Sparkles } from "lucide-react";
+import { ExternalLink, Layers3, Play, Radar, Sparkles } from "lucide-react";
+import { Billboard, BillboardAction } from "@/components/Billboard";
+import { TitleCard } from "@/components/TitleCard";
+import { projects } from "@/data/projects";
 
 const modules = [
-  "Career tracking and priority surfacing",
-  "Operational notes for embedded and robotics work",
-  "Structured evidence and narrative planning",
+  {
+    title: "Career tracking and priority surfacing",
+    body: "Keeps the pipeline visible so the next move is obvious rather than reconstructed each week.",
+    icon: Radar,
+  },
+  {
+    title: "Operational notes for embedded and robotics work",
+    body: "The working memory behind the systems — decisions, failures, and what actually fixed them.",
+    icon: Layers3,
+  },
+  {
+    title: "Structured evidence and narrative planning",
+    body: "Turns raw engineering output into the specific evidence a hiring conversation needs.",
+    icon: Sparkles,
+  },
 ];
 
-const stats = [
-  { label: "Live site", value: "sagar-os.vercel.app" },
-  { label: "Role", value: "Operating layer" },
-  { label: "Focus", value: "Systems and evidence" },
-];
+const related = projects
+  .filter((project) => project.tags.some((tag) => ["Systems", "AI/ML", "Career"].includes(tag)))
+  .slice(0, 4);
 
 export default function SagarOsPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/45 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(229,9,20,0.22),_transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent_40%,rgba(0,0,0,0.24))]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-netflix-red/80 to-transparent" />
+    <div className="pb-20">
+      <Billboard
+        eyebrow="Sagar OS"
+        title="The operational backbone."
+        meta={[
+          <span key="site">sagar-os.vercel.app</span>,
+          <span key="role">Operating layer</span>,
+          <span key="live" className="text-emerald-400">
+            Live
+          </span>,
+        ]}
+        description="Where SignalForge is the public face, Sagar OS is the operating layer underneath — tracking, notes, and structured evidence that keep the career system running on something more durable than memory."
+      >
+        <BillboardAction href={"https://sagar-os.vercel.app"} external>
+          <Play className="h-5 w-5 fill-black" />
+          Open live site
+        </BillboardAction>
+        <BillboardAction href="/jobs" variant="secondary">
+          Open job tracker
+        </BillboardAction>
+      </Billboard>
 
-        <div className="relative grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.3em] text-netflix-red">
-              <Sparkles className="h-4 w-4" />
-              Sagar OS
-            </div>
-            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl lg:text-6xl">
-              The operational backbone behind the career dashboard.
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">
-              This page is the visual gateway to the live operating layer. It keeps the ecosystem
-              connected while still being intentionally backend-free in this repository.
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a
-                href="https://sagar-os.vercel.app"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-netflix-red px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:scale-[1.02]"
-              >
-                Open Live Site
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <Link
-                href="/jobs"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Open Job Tracker
-              </Link>
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-[0.25em] text-white/45">{stat.label}</p>
-                  <p className="mt-3 text-sm font-semibold text-white">{stat.value}</p>
-                </div>
-              ))}
-            </div>
+      <div className="relative z-10 mx-auto -mt-8 max-w-7xl space-y-14 px-4 sm:px-6 lg:px-8">
+        <section>
+          <div className="flex items-center gap-3">
+            <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
+            <h2 className="text-2xl font-bold text-white">Modules</h2>
           </div>
-
-          <div className="rounded-3xl border border-white/10 bg-black/45 p-5">
-            <div className="flex items-center gap-2 text-sm uppercase tracking-[0.25em] text-white/50">
-              <Layers3 className="h-4 w-4 text-netflix-red" />
-              System view
-            </div>
-            <div className="mt-4 space-y-4">
-              {modules.map((module) => (
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {modules.map((module) => {
+              const Icon = module.icon;
+              return (
                 <div
-                  key={module}
-                  className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4 text-sm text-white/75"
+                  key={module.title}
+                  className="group rounded-lg border border-white/10 bg-panel/70 p-6 transition hover:border-netflix-red/35"
                 >
-                  {module}
+                  <Icon className="h-5 w-5 text-netflix-redSoft" />
+                  <h3 className="mt-4 text-lg font-bold text-white">{module.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-white/60">{module.body}</p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-5 rounded-2xl border border-white/8 bg-white/5 p-4">
-              <Radar className="h-5 w-5 text-netflix-red" />
-              <p className="mt-3 text-sm text-white/70">
-                Sagar OS frames workflows, records evidence, and connects career moves to the systems you built.
-              </p>
-            </div>
+              );
+            })}
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="h-7 w-1 rounded-full bg-netflix-red shadow-[0_0_30px_rgba(229,9,20,0.6)]" />
+              <h2 className="text-2xl font-bold text-white">Related Work</h2>
+            </div>
+            <a
+              href="https://sagar-os.vercel.app"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50 transition hover:text-white"
+            >
+              Visit Sagar OS
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {related.map((project) => (
+              <TitleCard key={project.slug} project={project} expanded />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

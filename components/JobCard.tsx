@@ -61,7 +61,7 @@ export function JobCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <CircleDot className="h-4 w-4 text-netflix-red" />
+            <CircleDot className="h-4 w-4 text-netflix-redSoft" />
             <h3 className="text-lg font-semibold text-white">{job.company}</h3>
           </div>
           <p className="mt-1 text-sm text-white/55">{job.location}</p>
@@ -96,7 +96,7 @@ export function JobCard({
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-3">
-        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Notes</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-white/55">Notes</p>
         {isInteractive ? (
           <textarea
             value={notes}
@@ -113,7 +113,7 @@ export function JobCard({
       {isInteractive ? (
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/45">
+            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/55">
               Status
               <select
                 value={status}
@@ -126,7 +126,7 @@ export function JobCard({
               </select>
             </label>
 
-            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/45">
+            <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-white/55">
               Priority
               <select
                 value={priority}
@@ -191,7 +191,7 @@ export function JobCard({
 
       <div className="mt-5 rounded-3xl border border-white/10 bg-black/30 p-4 opacity-100 transition duration-300 md:opacity-0 md:group-hover:opacity-100">
         <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/55">
-          <Radio className="h-4 w-4 text-netflix-red" />
+          <Radio className="h-4 w-4 text-netflix-redSoft" />
           Quick fit note
         </div>
         <p className="mt-3 text-sm leading-6 text-white/72">

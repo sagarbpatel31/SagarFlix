@@ -179,9 +179,3 @@ export const mockBlogGenerator: BlogGeneratorProvider = {
   },
 };
 
-export async function generateBlogDraft(
-  input: BlogGenerationRequest,
-  provider: BlogGeneratorProvider = mockBlogGenerator,
-) {
-  return provider.generate(input);
-}

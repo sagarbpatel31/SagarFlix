@@ -68,6 +68,9 @@ TEST_DATABASE_URL=postgresql://... npx vitest run tests/integration
 Accessibility is checked with axe-core against a running dev server rather than
 by eye; the suite currently reports zero violations across all 11 pages.
 
+Every page opens with the shared `components/Billboard`, so the hero scrims, height
+ladder, and action buttons have a single definition rather than per-page copies.
+
 CI mirrors the local validation flow and runs both commands on push and pull request:
 
 - `npm test`
